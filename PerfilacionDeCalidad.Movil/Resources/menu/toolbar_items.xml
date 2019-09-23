@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:local="http://schemas.android.com/apk/res-auto">
+  <item
+       android:id="@+id/item1"
+       android:icon="@mipmap/ic_action_exit_to_app"
+       local:showAsAction="ifRoom"
+       android:title="Cerrar Sesión" />
+  <!--<item
+       android:id="@+id/menu_clear"
+       android:icon="@mipmap/baseline_delete_black_36dp"
+       local:showAsAction="ifRoom"
+       android:title="Limpiar Filtros" />-->
+</menu>

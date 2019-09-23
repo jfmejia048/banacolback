@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <color android:color="#FFFFFF"/>
+  </item>
+  <item
+    android:gravity="center"
+    android:width="220dp">
+    <bitmap
+        android:src="@drawable/logoBanacol"
+        android:tileMode="disabled"
+        android:gravity="center_horizontal" />
+  </item>
+</layer-list>
