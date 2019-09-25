@@ -6,7 +6,7 @@
     using Android.OS;
     using PerfilacionDeCalidad.Movil.Helpers;
 
-    [Activity(Theme = "@style/MyTheme.Splash", Label = "@string/app_name", MainLauncher = true)]
+    [Activity(Theme = "@style/MyTheme.Splash", Label = "@string/app_name", MainLauncher = true, NoHistory = true)]
     public class SplashScreenActivity : Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)

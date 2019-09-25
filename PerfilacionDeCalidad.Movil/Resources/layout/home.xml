@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbarTabs"
 		android:minHeight="?attr/actionBarSize"
@@ -14,21 +15,26 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 	</android.support.v7.widget.Toolbar>
-     <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:layout_above="@+id/tabs"/>
-        <android.support.design.widget.TabLayout
-            android:minWidth="25px"
-            android:minHeight="25px"
+        android:layout_height="wrap_content"
+        android:padding="40dp"
+        android:orientation="vertical">
+        <ImageButton
+            android:background="@android:color/white"
+            android:src="@drawable/barcode"
+            android:layout_gravity="center_horizontal"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:layout_width="180dp"
+            android:layout_height="140dp"/>
+        <TextView
+            android:text="Toca la imagen para escanear el código de barras"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:id="@+id/tabLayout" />
-     </RelativeLayout>
+            android:textColor="#666"
+            android:textSize="14dp"
+            android:textAlignment="center"
+            android:layout_marginTop="20dp"/>
+    </LinearLayout>
 </LinearLayout>

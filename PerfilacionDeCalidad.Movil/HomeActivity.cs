@@ -13,6 +13,9 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 using Android.Views;
 using Android.Widget;
 using PerfilacionDeCalidad.Movil.Helpers;
+using Android.Support.V4.View;
+using Android.Support.V4.App;
+using Java.Lang;
 
 namespace PerfilacionDeCalidad.Movil
 {
@@ -29,10 +32,6 @@ namespace PerfilacionDeCalidad.Movil
             SupportActionBar.Title = "Perfilación De Calidad";
             //SupportActionBar.SetDefaultDisplayHomeAsUpEnabled(true);
             //SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            var tabLayout = FindViewById<TabLayout>(Resource.Id.tabLayout);
-            tabLayout.AddTab(tabLayout.NewTab().SetText("Tab 1"));
-            tabLayout.AddTab(tabLayout.NewTab().SetText("Tab 2"));
-            tabLayout.AddTab(tabLayout.NewTab().SetText("Tab 3"));
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
