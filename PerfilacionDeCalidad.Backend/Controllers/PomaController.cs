@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
+using PerfilacionDeCalidad.Backend.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +18,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
     public class PomaController : ControllerBase
     {
         private readonly DataContext _dataContext;
+        IHubContext<NotificationHub, HubHelper> _NotificationHubContext;
 
-        public PomaController(DataContext dataContext)
+        public PomaController(DataContext dataContext, IHubContext<NotificationHub, HubHelper> NotiHubContext)
         {
+            _NotificationHubContext = NotiHubContext;
             _dataContext = dataContext;
         }        
 
@@ -28,69 +32,73 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-
-                var Pomas = (from Poma in _dataContext.Pomas
-                             join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
-                             join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
-                             join Palet in _dataContext.Palets on Caja.Codigo equals Palet.Caja.Codigo
-                             join Finca in _dataContext.Fincas on Palet.Finca.Codigo equals Finca.Codigo
-                             join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
-                             join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
-                             join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
-                             join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
-                             select new
-                             {
-                                 CodigoPalet = Palet.Codigo,
-                                 Finca = Finca.FincaName,
-                                 TerminalDestino = Puerto.PuertoName,
-                                 Poma = Poma.Numero,
-                                 Fruta = Fruta.FrutaName,
-                                 Buque = Buque.BuqueName,
-                                 Llegada = Palet.LlegadaTerminal,
-                                 Salida = Palet.SalidaFinca,
-                                 Estimado = Palet.Estimado,
-                                 LlegadaTerminal = Palet.LlegadaTerminal,
-                                 Cajas = Caja.Estado,
-                                 Exportador = Exportador.ExportadorName,
-                                 Destino = Destino.DestinoName,
-                                 Carga = Palet.Carga,
-                                 CodigoDeBarras = Palet.CodigoPalet,
-                                 CajasPalet = Palet.NumeroCajas,
-                                 Palet.Perfilar
-                             }).ToList();
-
-                var juan = Pomas.GroupBy(x => x.Finca).Select(x => new {x.FirstOrDefault().Finca,
-                        TerminalDestino = x.GroupBy(g2 => g2.TerminalDestino).Select(s2 => new {s2.FirstOrDefault().TerminalDestino,
-                            pomas = s2.GroupBy(g3 => g3.Poma).Select(s3 => new {s3.FirstOrDefault().Poma,
-                                Frutas = s3.GroupBy(g4 => g4.Fruta).Select(s4 => new {
-                                    s4.FirstOrDefault().Fruta,
-                                    s4.FirstOrDefault().Buque,
-                                    s4.FirstOrDefault().Llegada,
-                                    s4.FirstOrDefault().Salida,
-                                    s4.FirstOrDefault().Estimado,
-                                    s4.FirstOrDefault().LlegadaTerminal,
-                                    s4.FirstOrDefault().Cajas,
-                                    s4.FirstOrDefault().Exportador,
-                                    s4.FirstOrDefault().Destino,
-                                    Palet = s4.Select(s5 => new
-                                    {
-                                        s5.CodigoPalet,
-                                        s5.Carga,
-                                        s5.CodigoDeBarras,
-                                        s5.CajasPalet,
-                                        s5.Perfilar
-                                    })
-                                }).ToList()
-                            })
-                        })
-                    });
-
-                return Ok(new { Data = juan, Success = true });
+                var List = Get();
+                return Ok(new { Data = List, Success = true });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Data = ex.ToString(), Success = false });
             }
+        }
+
+        public object Get()
+        {
+            var Pomas = (from Poma in _dataContext.Pomas
+                         join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
+                         join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
+                         join Palet in _dataContext.Palets on Caja.Codigo equals Palet.Caja.Codigo
+                         join Finca in _dataContext.Fincas on Palet.Finca.Codigo equals Finca.Codigo
+                         join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
+                         join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
+                         join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
+                         join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
+                         select new
+                         {
+                             CodigoPalet = Palet.Codigo,
+                             Finca = Finca.FincaName,
+                             TerminalDestino = Puerto.PuertoName,
+                             Poma = Poma.Numero,
+                             Fruta = Fruta.FrutaName,
+                             Buque = Buque.BuqueName,
+                             Llegada = Palet.LlegadaTerminal,
+                             Salida = Palet.SalidaFinca,
+                             Estimado = Palet.Estimado,
+                             LlegadaTerminal = Palet.LlegadaTerminal,
+                             Cajas = Caja.Estado,
+                             Exportador = Exportador.ExportadorName,
+                             Destino = Destino.DestinoName,
+                             Carga = Palet.Carga,
+                             CodigoDeBarras = Palet.CodigoPalet,
+                             CajasPalet = Palet.NumeroCajas,
+                             Palet.Perfilar
+                         }).ToList();
+
+            var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma })
+                .Select(x => new {
+                    x.FirstOrDefault().Finca,
+                    x.FirstOrDefault().TerminalDestino,
+                    x.FirstOrDefault().Poma,
+                    Frutas = x.GroupBy(g2 => g2.Fruta).Select(s2 => new {
+                        s2.FirstOrDefault().Fruta,
+                        s2.FirstOrDefault().Buque,
+                        s2.FirstOrDefault().Llegada,
+                        s2.FirstOrDefault().Salida,
+                        s2.FirstOrDefault().Estimado,
+                        s2.FirstOrDefault().LlegadaTerminal,
+                        s2.FirstOrDefault().Cajas,
+                        s2.FirstOrDefault().Exportador,
+                        s2.FirstOrDefault().Destino,
+                        Palet = s2.Select(s3 => new
+                        {
+                            s3.CodigoPalet,
+                            s3.Carga,
+                            s3.CodigoDeBarras,
+                            s3.CajasPalet,
+                            s3.Perfilar
+                        })
+                    }).ToList()
+                });
+            return List;
         }
 
         [HttpPost]
@@ -136,7 +144,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             DestinoController destinoController = new DestinoController(_dataContext);
             FrutasController frutasController = new FrutasController(_dataContext);
             FincaController fincaController = new FincaController(_dataContext);
-            CajaController cajaController = new CajaController(_dataContext);
+            CajaController cajaController = new CajaController(_dataContext, _NotificationHubContext);
             PaletController paletController = new PaletController(_dataContext);
             List<Pomas> ListPoma = new List<Pomas>();
             foreach (var Poma in Pomas)
@@ -274,6 +282,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             
             await _dataContext.SaveChangesAsync();
+            try
+            {
+                await _NotificationHubContext.Clients.All.BroadcastMessage(Get());
+            }
+            catch (Exception ex)
+            {
+                return ListPoma;
+            }
             return ListPoma;
         }
 

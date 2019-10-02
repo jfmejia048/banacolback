@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
+using PerfilacionDeCalidad.Backend.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +18,12 @@ namespace PerfilacionDeCalidad.Backend.Controllers
     [Authorize(Roles = "Administrador", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CajaController : ControllerBase
     {
+        IHubContext<NotificationHub, HubHelper> _NotificationHubContext;
         private readonly DataContext _dataContext;
 
-        public CajaController(DataContext dataContext)
+        public CajaController(DataContext dataContext, IHubContext<NotificationHub, HubHelper> NotiHubContext)
         {
+            _NotificationHubContext = NotiHubContext;
             _dataContext = dataContext;
         }
 
@@ -110,7 +114,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         private async Task<Pomas> ValidPomas(Pomas Pomas)
         {
-            PomaController pomaController = new PomaController(_dataContext);
+            PomaController pomaController = new PomaController(_dataContext, _NotificationHubContext);
             if (pomaController.ExistPoma(Pomas.Codigo))
             {
                 return Pomas;

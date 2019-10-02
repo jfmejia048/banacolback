@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,9 +17,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Owin;
+using Microsoft.Owin.Cors;
+using Owin;
 using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
 using PerfilacionDeCalidad.Backend.Helpers;
+
+[assembly: OwinStartup(typeof(PerfilacionDeCalidad.Backend.Startup))]
 
 namespace PerfilacionDeCalidad.Backend
 {
@@ -26,10 +32,10 @@ namespace PerfilacionDeCalidad.Backend
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Configurations = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configurations { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -46,7 +52,7 @@ namespace PerfilacionDeCalidad.Backend
 
             services.AddDbContext<DataContext>(cfg =>
             {
-                cfg.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                cfg.UseSqlServer(Configurations.GetConnectionString("DefaultConnection"));
             });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -58,9 +64,9 @@ namespace PerfilacionDeCalidad.Backend
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Tokens:Issuer"],
-                    ValidAudience = Configuration["Tokens:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"])),
+                    ValidIssuer = Configurations["Tokens:Issuer"],
+                    ValidAudience = Configurations["Tokens:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configurations["Tokens:Key"])),
                     ValidateLifetime = true
                 };
                 options.Events = new JwtBearerEvents
@@ -80,6 +86,7 @@ namespace PerfilacionDeCalidad.Backend
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
             });
 
+            services.AddSignalR();
             services.AddTransient<SeedDb>();
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -88,6 +95,8 @@ namespace PerfilacionDeCalidad.Backend
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -99,7 +108,22 @@ namespace PerfilacionDeCalidad.Backend
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthentication();
             app.UseHttpsRedirection();
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<NotificationHub>("/NotificationHub");
+            });
             app.UseMvc();
         }
+
+        //public void Configuration(IAppBuilder app)
+        //{
+        //    app.Map("/hubs", map =>
+        //    {
+        //        var hubConfiguration = new HubConfiguration { EnableJSONP = true };
+        //        map.RunSignalR(hubConfiguration);
+        //    });
+        //    app.MapSignalR();
+        //}
+
     }
 }
