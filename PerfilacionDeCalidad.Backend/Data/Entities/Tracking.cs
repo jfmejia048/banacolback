@@ -11,6 +11,8 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         [Key]
         public int ID { get; set; }
 
+        public int Codigo { get; set; }
+
         public Palets Palet { get; set; }
 
         public DateTime LecturaPalet { get; set; }

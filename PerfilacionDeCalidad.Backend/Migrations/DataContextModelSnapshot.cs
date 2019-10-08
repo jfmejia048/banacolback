@@ -129,6 +129,251 @@ namespace PerfilacionDeCalidad.Backend.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Buques", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("BuqueName")
+                        .HasMaxLength(50);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Buques");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Cajas", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Cantidad");
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.Property<int?>("FrutasID");
+
+                    b.Property<int?>("PomasID");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FrutasID");
+
+                    b.HasIndex("PomasID");
+
+                    b.ToTable("Cajas");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Destinos", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<string>("DestinoName")
+                        .HasMaxLength(50);
+
+                    b.Property<bool>("Estado");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Destinos");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Exportadores", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.Property<string>("ExportadorName")
+                        .HasMaxLength(50);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Exportadores");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Fincas", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.Property<string>("FincaName")
+                        .HasMaxLength(10);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Fincas");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Frutas", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.Property<string>("FrutaName")
+                        .HasMaxLength(50);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Frutas");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Palets", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("BuqueID");
+
+                    b.Property<int?>("CajaID");
+
+                    b.Property<int>("CaraPalet");
+
+                    b.Property<string>("Carga")
+                        .HasMaxLength(100);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<string>("CodigoPalet")
+                        .HasMaxLength(20);
+
+                    b.Property<int?>("DestinoID");
+
+                    b.Property<DateTime>("Estimado");
+
+                    b.Property<int?>("ExportadorID");
+
+                    b.Property<int?>("FincaID");
+
+                    b.Property<DateTime>("InspeccionPalet");
+
+                    b.Property<DateTime>("LecturaPalet");
+
+                    b.Property<DateTime>("LlegadaCamion");
+
+                    b.Property<DateTime>("LlegadaTerminal");
+
+                    b.Property<int>("NumeroCajas");
+
+                    b.Property<bool>("Perfilar");
+
+                    b.Property<int?>("PuertoID");
+
+                    b.Property<DateTime>("SalidaFinca");
+
+                    b.Property<string>("UsuarioLectura")
+                        .HasMaxLength(50);
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("BuqueID");
+
+                    b.HasIndex("CajaID");
+
+                    b.HasIndex("DestinoID");
+
+                    b.HasIndex("ExportadorID");
+
+                    b.HasIndex("FincaID");
+
+                    b.HasIndex("PuertoID");
+
+                    b.ToTable("Palets");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Pomas", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.Property<int>("Numero");
+
+                    b.Property<string>("Placa")
+                        .HasMaxLength(10);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Pomas");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Puertos", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<bool>("Estado");
+
+                    b.Property<string>("PuertoName")
+                        .HasMaxLength(50);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Puertos");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Tracking", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<string>("Evento")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime>("LecturaPalet");
+
+                    b.Property<string>("Localizacion")
+                        .HasMaxLength(100);
+
+                    b.Property<int?>("PaletID");
+
+                    b.Property<string>("Punto")
+                        .HasMaxLength(100);
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("PaletID");
+
+                    b.ToTable("Tracking");
+                });
+
             modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.TypeDocument", b =>
                 {
                     b.Property<int>("ID")
@@ -230,6 +475,9 @@ namespace PerfilacionDeCalidad.Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Document")
+                        .IsUnique();
+
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -288,6 +536,51 @@ namespace PerfilacionDeCalidad.Backend.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Cajas", b =>
+                {
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Frutas", "Frutas")
+                        .WithMany()
+                        .HasForeignKey("FrutasID");
+
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Pomas", "Pomas")
+                        .WithMany()
+                        .HasForeignKey("PomasID");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Palets", b =>
+                {
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Buques", "Buque")
+                        .WithMany()
+                        .HasForeignKey("BuqueID");
+
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Cajas", "Caja")
+                        .WithMany()
+                        .HasForeignKey("CajaID");
+
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Destinos", "Destino")
+                        .WithMany()
+                        .HasForeignKey("DestinoID");
+
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Exportadores", "Exportador")
+                        .WithMany()
+                        .HasForeignKey("ExportadorID");
+
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Fincas", "Finca")
+                        .WithMany()
+                        .HasForeignKey("FincaID");
+
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Puertos", "Puerto")
+                        .WithMany()
+                        .HasForeignKey("PuertoID");
+                });
+
+            modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.Tracking", b =>
+                {
+                    b.HasOne("PerfilacionDeCalidad.Backend.Data.Entities.Palets", "Palet")
+                        .WithMany()
+                        .HasForeignKey("PaletID");
                 });
 
             modelBuilder.Entity("PerfilacionDeCalidad.Backend.Data.Entities.User", b =>

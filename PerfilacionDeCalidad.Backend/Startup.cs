@@ -55,7 +55,10 @@ namespace PerfilacionDeCalidad.Backend
                 cfg.UseSqlServer(Configurations.GetConnectionString("DefaultConnection"));
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(x => {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddCookie()
             .AddJwtBearer(options =>
             {

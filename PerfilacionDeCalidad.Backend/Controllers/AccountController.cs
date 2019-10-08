@@ -102,14 +102,13 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                             new Claim(ClaimTypes.Role, response.TypeUser.Type)
                         };
-
                         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
                         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                         var token = new JwtSecurityToken(
                             _configuration["Tokens:Issuer"],
                             _configuration["Tokens:Audience"],
                             claims,
-                            expires: DateTime.UtcNow.AddYears(10),
+                            expires: DateTime.UtcNow.AddYears(30),
                             signingCredentials: credentials);
 
                         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -241,7 +240,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("Edit")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Administrador", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Edit(AddUsersViewModel model) 
         {
             if (_dataContext.Users.Any(x => x.Id != model.Id && x.Document == model.Document))

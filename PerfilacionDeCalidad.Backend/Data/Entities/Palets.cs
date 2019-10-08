@@ -28,20 +28,20 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         [MaxLength(20, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string CodigoPalet { get; set; }
 
-        public TimeSpan LlegadaCamion { get; set; }
+        public DateTime LlegadaCamion { get; set; }
 
-        public TimeSpan SalidaFinca { get; set; }
+        public DateTime SalidaFinca { get; set; }
 
-        public TimeSpan Estimado { get; set; }
+        public DateTime Estimado { get; set; }
 
-        public TimeSpan LlegadaTerminal { get; set; }
+        public DateTime LlegadaTerminal { get; set; }
 
-        public TimeSpan LecturaPalet { get; set; }
+        public DateTime LecturaPalet { get; set; }
 
         [MaxLength(50, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string UsuarioLectura { get; set; }
 
-        public TimeSpan InspeccionPalet { get; set; }
+        public DateTime InspeccionPalet { get; set; }
 
         public int CaraPalet { get; set; }
     
