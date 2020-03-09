@@ -67,21 +67,10 @@ namespace PerfilacionDeCalidad.Backend
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
+                    RequireExpirationTime = false,
                     ValidIssuer = Configurations["Tokens:Issuer"],
                     ValidAudience = Configurations["Tokens:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configurations["Tokens:Key"])),
-                    ValidateLifetime = true
-                };
-                options.Events = new JwtBearerEvents
-                {
-                    OnAuthenticationFailed = context =>
-                    {
-                        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                        {
-                            context.Response.Headers.Add("Token-Expired", "true");
-                        }
-                        return Task.CompletedTask;
-                    }
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configurations["Tokens:Key"]))
                 };
             });
             services.AddCors(c =>

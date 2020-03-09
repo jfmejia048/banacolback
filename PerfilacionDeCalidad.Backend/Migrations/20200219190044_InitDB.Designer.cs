@@ -10,14 +10,14 @@ using PerfilacionDeCalidad.Backend.Data;
 namespace PerfilacionDeCalidad.Backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20191002163445_CompletDB")]
-    partial class CompletDB
+    [Migration("20200219190044_InitDB")]
+    partial class InitDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
+                .HasAnnotation("ProductVersion", "2.1.14-servicing-32113")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -268,19 +268,19 @@ namespace PerfilacionDeCalidad.Backend.Migrations
 
                     b.Property<int?>("DestinoID");
 
-                    b.Property<TimeSpan>("Estimado");
+                    b.Property<DateTime>("Estimado");
 
                     b.Property<int?>("ExportadorID");
 
                     b.Property<int?>("FincaID");
 
-                    b.Property<TimeSpan>("InspeccionPalet");
+                    b.Property<DateTime>("InspeccionPalet");
 
-                    b.Property<TimeSpan>("LecturaPalet");
+                    b.Property<DateTime>("LecturaPalet");
 
-                    b.Property<TimeSpan>("LlegadaCamion");
+                    b.Property<DateTime>("LlegadaCamion");
 
-                    b.Property<TimeSpan>("LlegadaTerminal");
+                    b.Property<DateTime>("LlegadaTerminal");
 
                     b.Property<int>("NumeroCajas");
 
@@ -288,7 +288,7 @@ namespace PerfilacionDeCalidad.Backend.Migrations
 
                     b.Property<int?>("PuertoID");
 
-                    b.Property<TimeSpan>("SalidaFinca");
+                    b.Property<DateTime>("SalidaFinca");
 
                     b.Property<string>("UsuarioLectura")
                         .HasMaxLength(50);
@@ -353,6 +353,8 @@ namespace PerfilacionDeCalidad.Backend.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Codigo");
 
                     b.Property<string>("Evento")
                         .HasMaxLength(100);

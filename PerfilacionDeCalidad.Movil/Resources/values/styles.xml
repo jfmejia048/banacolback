@@ -16,6 +16,7 @@
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     <item name="colorAccent">@color/colorAccent</item>
+    <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
   </style>
 
   <style name="MyTheme" parent="MyTheme.Base">
@@ -25,6 +26,15 @@
       <item name="android:windowBackground">@drawable/splash</item>
       <item name="android:windowNoTitle">true</item>
       <item name="android:windowFullscreen">true</item>
+  </style>
+
+  <style name="AlertDialog" parent="Base.Theme.AppCompat.Light.Dialog">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <item name="colorAccent">@color/colorAccent</item>
+    <item name="theme">@style/Base.Theme.AppCompat.Light.Dialog</item>
   </style>
   
 </resources>

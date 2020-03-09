@@ -36,6 +36,7 @@
                     android:layout_marginTop="10dp"
                     android:padding="10dp"
                     android:hint="Ingrese aquí su usuario"
+                    android:textColorHint="#636363"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/EditTextStyle"/>
@@ -49,6 +50,7 @@
                 <EditText
                     android:id="@+id/txtPassLogin"
                     android:hint="Ingrese aquí su contraseña"
+                    android:textColorHint="#636363"
                     android:fontFamily="sans-serif"
                     android:layout_marginTop="10dp"
                     android:padding="10dp"

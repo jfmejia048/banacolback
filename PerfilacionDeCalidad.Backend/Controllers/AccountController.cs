@@ -105,9 +105,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
                         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                         var token = new JwtSecurityToken(
-                            _configuration["Tokens:Issuer"],
-                            _configuration["Tokens:Audience"],
-                            claims,
+                            issuer:_configuration["Tokens:Issuer"],
+                            audience:_configuration["Tokens:Audience"],
+                            claims:claims,
+                            notBefore:null,
                             expires: DateTime.UtcNow.AddYears(30),
                             signingCredentials: credentials);
 
@@ -323,9 +324,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [HttpPost]
         [Route("GetUsers")]
         [Authorize(Roles = "Administrador", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult GetUsers(AddUsersViewModel model)
+        public IActionResult GetUsers()
         {
-            var Customers = _dataContext.Users.Include(x => x.TypeUser).Include(x => x.TypeDocument).Where(x => x.Id != model.Id).Select(x => new
+            var Customers = _dataContext.Users.Include(x => x.TypeUser).Include(x => x.TypeDocument).Select(x => new
             {
                 ID = x.Id,
                 Documento = x.Document,

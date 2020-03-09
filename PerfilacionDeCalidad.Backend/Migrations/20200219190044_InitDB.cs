@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PerfilacionDeCalidad.Backend.Migrations
 {
-    public partial class CompletDB : Migration
+    public partial class InitDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -275,13 +275,13 @@ namespace PerfilacionDeCalidad.Backend.Migrations
                     CajaID = table.Column<int>(nullable: true),
                     Codigo = table.Column<int>(nullable: false),
                     CodigoPalet = table.Column<string>(maxLength: 20, nullable: true),
-                    LlegadaCamion = table.Column<TimeSpan>(nullable: false),
-                    SalidaFinca = table.Column<TimeSpan>(nullable: false),
-                    Estimado = table.Column<TimeSpan>(nullable: false),
-                    LlegadaTerminal = table.Column<TimeSpan>(nullable: false),
-                    LecturaPalet = table.Column<TimeSpan>(nullable: false),
+                    LlegadaCamion = table.Column<DateTime>(nullable: false),
+                    SalidaFinca = table.Column<DateTime>(nullable: false),
+                    Estimado = table.Column<DateTime>(nullable: false),
+                    LlegadaTerminal = table.Column<DateTime>(nullable: false),
+                    LecturaPalet = table.Column<DateTime>(nullable: false),
                     UsuarioLectura = table.Column<string>(maxLength: 50, nullable: true),
-                    InspeccionPalet = table.Column<TimeSpan>(nullable: false),
+                    InspeccionPalet = table.Column<DateTime>(nullable: false),
                     CaraPalet = table.Column<int>(nullable: false),
                     NumeroCajas = table.Column<int>(nullable: false),
                     Carga = table.Column<string>(maxLength: 100, nullable: true),
@@ -419,6 +419,7 @@ namespace PerfilacionDeCalidad.Backend.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Codigo = table.Column<int>(nullable: false),
                     PaletID = table.Column<int>(nullable: true),
                     LecturaPalet = table.Column<DateTime>(nullable: false),
                     Punto = table.Column<string>(maxLength: 100, nullable: true),

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -11,7 +11,7 @@
 		android:background="#007d9a"
         app:titleTextColor="@android:color/white"
 		android:gravity="left"
-		android:theme="@style/Theme.AppCompat.Light"
+		android:theme="@style/ThemeOverlay.AppCompat.Dark"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 	</android.support.v7.widget.Toolbar>
@@ -21,6 +21,7 @@
         android:padding="40dp"
         android:orientation="vertical">
         <ImageButton
+            android:id="@+id/btnBarcode"
             android:background="@android:color/white"
             android:src="@drawable/barcode"
             android:layout_gravity="center_horizontal"
@@ -29,12 +30,21 @@
             android:layout_width="180dp"
             android:layout_height="140dp"/>
         <TextView
-            android:text="Toca la imagen para escanear el código de barras"
+            android:text="Escanee el código de barras para continuar."
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#666"
             android:textSize="14dp"
             android:textAlignment="center"
             android:layout_marginTop="20dp"/>
+        <EditText
+            android:layout_marginTop="30dp"
+            android:padding="10dp"
+            android:hint="código"
+            android:textColorHint="#636363"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/EditTextStyle"
+            android:id="@+id/txtcodeBar" />
     </LinearLayout>
 </LinearLayout>

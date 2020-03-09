@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
+using PerfilacionDeCalidad.Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,64 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Data = ex.ToString(), Success = false });
+            }
+        }
+
+        [HttpPost]
+        [Route("GetFilters")]
+        public IActionResult GetFilters(Parameters parameters)
+        {
+            try
+            {
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet)
+                    .Include(x => x.Palet.Finca)
+                    .Include(x => x.Palet.Puerto)
+                    .Include(x => x.Palet.Buque)
+                    .Include(x => x.Palet.Destino)
+                    .Include(x => x.Palet.Exportador)
+                    .Include(x => x.Palet.Caja)
+                    .Include(x => x.Palet.Caja.Pomas)
+                    .Include(x => x.Palet.Caja.Frutas).ToList();
+
+                if (!string.IsNullOrEmpty(parameters.Finca))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Finca.FincaName.Contains(parameters.Finca)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(parameters.Puerto))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Puerto.PuertoName.Contains(parameters.Puerto)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(parameters.Buque))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Buque.BuqueName.Contains(parameters.Buque)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(parameters.Destino))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Destino.DestinoName.Contains(parameters.Destino)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(parameters.Exportador))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Exportador.ExportadorName.Contains(parameters.Exportador)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(parameters.Fruta))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Caja.Frutas.FrutaName.Contains(parameters.Fruta)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(parameters.Poma))
+                {
+                    Trackings = Trackings.Where(x => x.Palet.Caja.Pomas.Placa.Contains(parameters.Poma)).ToList();
+                }
+
+                return Ok(new { Data = Trackings.GroupBy(x => x.Palet).Select(x => new { x.FirstOrDefault().Palet, Tracking = x.ToList() }), Success = true });
+            }catch(Exception ex)
+            {
+                return BadRequest(new { Data = ex.Message, Success = false });
             }
         }
 

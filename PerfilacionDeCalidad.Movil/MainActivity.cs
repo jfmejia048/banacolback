@@ -1,18 +1,18 @@
-﻿using Android.App;
-using Android.OS;
-using Android.Support.V7.App;
-using Android.Runtime;
-using Android.Widget;
-using PerfilacionDeCalidad.PCL.Services;
-using System;
-using AlertDialog = Android.App.AlertDialog;
-using Newtonsoft.Json;
-using PerfilacionDeCalidad.PCL.Models;
-using PerfilacionDeCalidad.Movil.Helpers;
-using Android.Content;
-
-namespace PerfilacionDeCalidad.Movil
+﻿namespace PerfilacionDeCalidad.Movil
 {
+    using Android.App;
+    using Android.OS;
+    using Android.Runtime;
+    using Android.Widget;
+    using PerfilacionDeCalidad.PCL.Services;
+    using System;
+    using AlertDialog = Android.App.AlertDialog;
+    using Newtonsoft.Json;
+    using PerfilacionDeCalidad.PCL.Models;
+    using PerfilacionDeCalidad.Movil.Helpers;
+    using Android.Content;
+
+
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false, NoHistory = true)]
     public class MainActivity : Activity
     {
@@ -22,6 +22,7 @@ namespace PerfilacionDeCalidad.Movil
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
+            NavigationLoader.init(this);
             apiService = new ApiService();
 
             var buttoLogin = FindViewById<Button>(Resource.Id.btnLogin);
@@ -30,7 +31,6 @@ namespace PerfilacionDeCalidad.Movil
 
         private async void Login(object sender, EventArgs e)
         {
-            NavigationLoader.init(this);
             NavigationLoader.ShowLoading();
             var user = FindViewById<EditText>(Resource.Id.txtUserLogin);
             var pass = FindViewById<EditText>(Resource.Id.txtPassLogin);
@@ -54,7 +54,7 @@ namespace PerfilacionDeCalidad.Movil
                 Password = pass.Text
             };
 
-            var response = await this.apiService.PostLogin("Account/Login", data);
+            var response = await this.apiService.Post("Account/Login", data);
             if (response.success)
             {
                 var result = JsonConvert.DeserializeObject<LoginResponse>(response.data.ToString());
@@ -70,7 +70,7 @@ namespace PerfilacionDeCalidad.Movil
 
         public void PresentAlert(string content)
         {
-            var dialogVal = new AlertDialog.Builder(this);
+            var dialogVal = new AlertDialog.Builder(this, Resource.Style.AlertDialog);
             AlertDialog alertVal = dialogVal.Create();
             alertVal.SetTitle("Información");
             alertVal.SetMessage(content);
