@@ -10,8 +10,8 @@ using PerfilacionDeCalidad.Backend.Data;
 namespace PerfilacionDeCalidad.Backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200219190044_InitDB")]
-    partial class InitDB
+    [Migration("20200312180137_initDB")]
+    partial class initDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

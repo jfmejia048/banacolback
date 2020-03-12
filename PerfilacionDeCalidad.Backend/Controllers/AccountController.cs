@@ -56,8 +56,12 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
                 if (result.Succeeded)
                 {
-                    var Token = await CreateToken(Model);
                     var response = await _dataContext.Users.Include(x => x.TypeUser).Include(x => x.TypeDocument).Where(x => x.UserName == Model.Username).FirstOrDefaultAsync();
+                    if (!response.State)
+                    {
+                        return BadRequest(new { Data = "Inactive User", Success = false });
+                    }
+                    var Token = await CreateToken(Model);
                     var data = new
                     {
                         ID = response.Id,
@@ -170,7 +174,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         public async Task<IActionResult> Recovery(EmailRequest Email)
         {
             if (string.IsNullOrEmpty(Email.Email))
-                return BadRequest(new { Data = "Email not found", Success = false });
+                return BadRequest(new { Data = "El usuario ingresado no existe", Success = false });
+
+            var user = _dataContext.Users.First(x => x.UserName == Email.Email);
+            if (!user.State)
+                return BadRequest(new { Data = "Usuario inactivo", Success = false });
 
             var longitud = 7;
             string caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -180,7 +188,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 res.Append(caracteres[rnd.Next(caracteres.Length)]);
             }
-            var user = _dataContext.Users.First(x => x.UserName == Email.Email);
             var response = await _userHelper.ChangePasswordRecovery(user, res.ToString());
 
             if (!response.Succeeded)
@@ -196,10 +203,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
             SmtpClient client = new SmtpClient("smtp.gmail.com");
             client.UseDefaultCredentials = false;
-            client.Credentials = new NetworkCredential("sebas.builes.a@gmail.com", "100399Gmail");
+            client.Credentials = new NetworkCredential("juanfer.072013.jm@gmail.com", "ctkubmxctgykbgge");
             client.EnableSsl = true;
             MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress("sebas.builes.a@gmail.com");
+            mailMessage.From = new MailAddress("juanfer.072013.jm@gmail.com");
             mailMessage.To.Add(Email.Email);
             mailMessage.Body = res.ToString();
             mailMessage.Subject = "Codigo para recuperación de contraseña";
