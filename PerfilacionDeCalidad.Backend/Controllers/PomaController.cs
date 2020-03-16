@@ -43,6 +43,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         public object Get()
         {
+            var currentDate = DateTime.UtcNow.ToLocalTime();
+            var StartDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 3, 0, 0);
+            var EndDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day + 1, 2, 59, 0);
+            if(currentDate < StartDate)
+            {
+                StartDate = StartDate.AddDays(-1);
+                EndDate = EndDate.AddDays(-1);
+            }
             var Pomas = (from Poma in _dataContext.Pomas
                          join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
                          join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
@@ -52,12 +60,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                          join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
                          join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
                          join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
+                         where Poma.FechaRegistro.ToLocalTime() >= StartDate && Poma.FechaRegistro.ToLocalTime() <= EndDate
                          select new
                          {
                              CodigoPalet = Palet.Codigo,
                              Finca = Finca.FincaName,
                              TerminalDestino = Puerto.PuertoName,
                              Poma = Poma.Numero,
+                             FechaCreacion = Poma.FechaRegistro.ToLocalTime(),
                              Fruta = Fruta.FrutaName,
                              Buque = Buque.BuqueName,
                              Llegada = Palet.LlegadaTerminal,
@@ -71,13 +81,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                              CodigoDeBarras = Palet.CodigoPalet,
                              CajasPalet = Palet.NumeroCajas,
                              Palet.Perfilar
-                         }).ToList();
+                         }).OrderBy(x => x.FechaCreacion).ToList();
 
-            var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma })
+            var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
                 .Select(x => new {
                     x.FirstOrDefault().Finca,
                     x.FirstOrDefault().TerminalDestino,
                     x.FirstOrDefault().Poma,
+                    x.FirstOrDefault().FechaCreacion,
                     Frutas = x.GroupBy(g2 => g2.Fruta).Select(s2 => new {
                         s2.FirstOrDefault().Fruta,
                         s2.FirstOrDefault().Buque,
@@ -128,6 +139,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     P.Numero = Poma.Numero;
                     P.Placa = Poma.Placa;
                     P.Estado = true;
+                    P.FechaRegistro = Poma.FechaRegistro;
                     ListPoma.Add(P);
                 }
             }
@@ -160,6 +172,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         P.Numero = Poma.Numero;
                         P.Placa = Poma.Placa;
                         P.Estado = true;
+                        P.FechaRegistro = DateTime.UtcNow;
                         pomas.Add(P);
                         pomas = await this.Create(pomas);
                     }

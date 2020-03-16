@@ -19,5 +19,7 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         public string Placa { get; set; }
 
         public bool Estado { get; set; }
+
+        public DateTime FechaRegistro { get; set; }
     }
 }

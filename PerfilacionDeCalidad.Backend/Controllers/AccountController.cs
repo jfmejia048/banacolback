@@ -221,10 +221,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         public async Task<IActionResult> ChangePassword(EmailRequest Email)
         {
             if (string.IsNullOrEmpty(Email.Email))
-                return BadRequest(new { Data = "Email not found", Success = false });
+                return BadRequest(new { Data = "Email vacio", Success = false });
 
             if (string.IsNullOrEmpty(Email.OldPassword))
-                return BadRequest(new { Data = "OldPassword not found", Success = false });
+                return BadRequest(new { Data = "", Success = false });
 
             if (string.IsNullOrEmpty(Email.NewPassword))
                 return BadRequest(new { Data = "NewPassword not found", Success = false });
@@ -232,7 +232,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             var user = _dataContext.Users.First(x => x.UserName == Email.Email);
             var response = await _userHelper.ChangePassword(user, Email.OldPassword, Email.NewPassword);
             if (!response.Succeeded)
-                return BadRequest(new { Data = "Hubo un error al guardar la contraseña", Success = false });
+                return BadRequest(new { Data = "La contraseña actual es incorrecta", Success = false });
 
             try
             {
