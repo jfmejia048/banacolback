@@ -43,6 +43,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         public object Get()
         {
+            List<object> retList = new List<object>();
             var currentDate = DateTime.UtcNow.ToLocalTime();
             var StartDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 3, 0, 0);
             var EndDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day + 1, 2, 59, 0);
@@ -54,33 +55,34 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             var Pomas = (from Poma in _dataContext.Pomas
                          join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
                          join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
-                         join Palet in _dataContext.Palets on Caja.Codigo equals Palet.Caja.Codigo
-                         join Finca in _dataContext.Fincas on Palet.Finca.Codigo equals Finca.Codigo
-                         join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
-                         join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
-                         join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
-                         join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
+                         join Palets in _dataContext.Palets on Caja.Codigo equals Palets.Caja.Codigo
+                         join Finca in _dataContext.Fincas on Palets.Finca.Codigo equals Finca.Codigo
+                         join Puerto in _dataContext.Puertos on Palets.Puerto.Codigo equals Puerto.Codigo
+                         join Buque in _dataContext.Buques on Palets.Buque.Codigo equals Buque.Codigo
+                         join Exportador in _dataContext.Exportadores on Palets.Exportador.Codigo equals Exportador.Codigo
+                         join Destino in _dataContext.Destinos on Palets.Destino.Codigo equals Destino.Codigo
                          where Poma.FechaRegistro.ToLocalTime() >= StartDate && Poma.FechaRegistro.ToLocalTime() <= EndDate
                          select new
                          {
-                             CodigoPalet = Palet.Codigo,
+                             CodigoPalet = Palets.Codigo,
                              Finca = Finca.FincaName,
                              TerminalDestino = Puerto.PuertoName,
                              Poma = Poma.Numero,
                              FechaCreacion = Poma.FechaRegistro.ToLocalTime(),
                              Fruta = Fruta.FrutaName,
                              Buque = Buque.BuqueName,
-                             Llegada = Palet.LlegadaTerminal,
-                             Salida = Palet.SalidaFinca,
-                             Estimado = Palet.Estimado,
-                             LlegadaTerminal = Palet.LlegadaTerminal,
+                             Llegada = Palets.LlegadaTerminal,
+                             Salida = Palets.SalidaFinca,
+                             Estimado = Palets.Estimado,
+                             LlegadaTerminal = Palets.LlegadaTerminal,
                              Cajas = Caja.Estado,
                              Exportador = Exportador.ExportadorName,
                              Destino = Destino.DestinoName,
-                             Carga = Palet.Carga,
-                             CodigoDeBarras = Palet.CodigoPalet,
-                             CajasPalet = Palet.NumeroCajas,
-                             Palet.Perfilar
+                             Carga = Palets.Carga,
+                             CodigoDeBarras = Palets.CodigoPalet,
+                             idPallet = Palets.ID,
+                             CajasPalet = Palets.NumeroCajas,
+                             Palets.Perfilar
                          }).OrderBy(x => x.FechaCreacion).ToList();
 
             var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
@@ -101,6 +103,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         s2.FirstOrDefault().Destino,
                         Palet = s2.Select(s3 => new
                         {
+                            s3.idPallet,
                             s3.CodigoPalet,
                             s3.Carga,
                             s3.CodigoDeBarras,
@@ -109,7 +112,17 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         })
                     }).ToList()
                 });
-            return List;
+
+            List.ToList().ForEach(x =>
+            {
+                List<int> palets = x.Frutas.FirstOrDefault().Palet.Select(s => s.idPallet).ToList();
+                if(!_dataContext.Tracking.Where(a => palets.Contains(a.Palet.ID)).Any())
+                {
+                    retList.Add(x);
+                }
+            });
+
+            return retList;
         }
 
         [HttpPost]

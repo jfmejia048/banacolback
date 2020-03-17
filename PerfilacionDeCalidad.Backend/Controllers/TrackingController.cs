@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using Common.DTO;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace PerfilacionDeCalidad.Backend.Controllers
 {
@@ -130,21 +132,47 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
 
         [HttpPost]
-        [Route("GetByFinca")]
-        public IActionResult GetByFinca(Fincas Finca)
+        [Route("SaveTracking")]
+        public IActionResult SaveTracking(PerfilarPaletListDTO palets)
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Finca).Where(x => x.Palet.Finca.Codigo == Finca.ID).Select(x => new
+                using(TransactionScope tran = new TransactionScope())
                 {
-                    ID = x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.LecturaPalet,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
+                    palets.Perfilar.ForEach(x => {
+                        var palet = _dataContext.Palets.Where(w => w.ID == x.idPallet).FirstOrDefault();
+                        palet.Perfilar = true;
+                        var tracking = new Tracking
+                        {
+                            Codigo = x.codigoPalet,
+                            Palet = palet,
+                            LecturaPalet = DateTime.UtcNow,
+                            Localizacion = "",
+                            Punto = "",
+                            Evento = "Selección Pallets"
+                        };
+                        _dataContext.Tracking.Add(tracking);
+                        _dataContext.SaveChanges();
+                    });
+
+                    palets.NoPerfilar.ForEach(x => {
+                        var palet = _dataContext.Palets.Where(w => w.ID == x.idPallet).FirstOrDefault();
+                        var tracking = new Tracking
+                        {
+                            Codigo = x.codigoPalet,
+                            Palet = palet,
+                            LecturaPalet = DateTime.UtcNow,
+                            Localizacion = "",
+                            Punto = "",
+                            Evento = "Selección Pallets"
+                        };
+                        _dataContext.Tracking.Add(tracking);
+                        _dataContext.SaveChanges();
+                    });
+
+                    tran.Complete();
+                }
+                return Ok(new { Data = "Proceso ejecutado correctamente", Success = true });
             }
             catch (Exception ex)
             {
