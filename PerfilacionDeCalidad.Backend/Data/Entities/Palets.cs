@@ -21,8 +21,6 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
 
         public Exportadores Exportador { get; set; }
 
-        public Cajas Caja { get; set; }
-
         public int Codigo { get; set; }
 
         [MaxLength(20, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]

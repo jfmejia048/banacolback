@@ -17,8 +17,6 @@ namespace PerfilacionDeCalidad.Backend.Data
 
         public DbSet<Buques> Buques { get; set; }
 
-        public DbSet<Cajas> Cajas { get; set; }
-
         public DbSet<Destinos> Destinos { get; set; }
 
         public DbSet<Exportadores> Exportadores { get; set; }

@@ -24,5 +24,7 @@ namespace PerfilacionDeCalidad.Backend.Models
         public string Fruta { get; set; }
 
         public string Poma { get; set; }
+
+        public List<DateTime> RangoFechas { get; set; }
     }
 }

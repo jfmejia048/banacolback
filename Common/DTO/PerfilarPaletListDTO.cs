@@ -8,6 +8,8 @@ namespace Common.DTO
     {
         public List<PerfilarPaletDTO> Perfilar { get; set; }
         public List<PerfilarPaletDTO> NoPerfilar { get; set; }
+        public int IdPoma { get; set; }
+        public int Action { get; set; }
 
     }
 }

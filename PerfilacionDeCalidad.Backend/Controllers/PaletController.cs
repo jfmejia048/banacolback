@@ -42,10 +42,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         public object Get()
         {
             var Pomas = (from Poma in _dataContext.Pomas
-                         join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
-                         join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
-                         join Palet in _dataContext.Palets on Caja.Codigo equals Palet.Caja.Codigo
-                         join Finca in _dataContext.Fincas on Palet.Finca.Codigo equals Finca.Codigo
+                         join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
+                         join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
+                         join Palet in _dataContext.Palets on Finca.Codigo equals Palet.Finca.Codigo
                          join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
                          join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
                          join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
@@ -61,7 +60,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                              Salida = Palet.SalidaFinca,
                              Estimado = Palet.Estimado,
                              LlegadaTerminal = Palet.LlegadaTerminal,
-                             Cajas = Caja.Estado,
+                             Cajas = Poma.Recibido,
                              Exportador = Exportador.ExportadorName,
                              Destino = Destino.DestinoName,
                              Carga = Palet.Carga,
@@ -79,15 +78,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             try
             {
                 var Palets = (from Poma in _dataContext.Pomas
-                             join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
-                             join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
-                             join Palet in _dataContext.Palets on Caja.Codigo equals Palet.Caja.Codigo
-                             join Finca in _dataContext.Fincas on Palet.Finca.Codigo equals Finca.Codigo
-                             join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
-                             join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
-                             join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
-                             join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
-                             where Palet.CodigoPalet == Codigo.CodigoPalet
+                              join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
+                              join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
+                              join Palet in _dataContext.Palets on Finca.Codigo equals Palet.Finca.Codigo
+                              join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
+                              join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
+                              join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
+                              join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
+                              where Palet.CodigoPalet == Codigo.CodigoPalet
                              select new
                              {
                                  Finca = Finca.FincaName,
@@ -99,7 +97,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                                  Salida = Palet.SalidaFinca,
                                  Estimado = Palet.Estimado,
                                  LlegadaTerminal = Palet.LlegadaTerminal,
-                                 Cajas = Caja.Estado,
+                                 Cajas = Poma.Recibido,
                                  Exportador = Exportador.ExportadorName,
                                  Destino = Destino.DestinoName,
                                  Carga = Palet.Carga,

@@ -17,5 +17,9 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         public string FincaName { get; set; }
 
         public bool Estado { get; set; }
+
+        public Pomas Pomas { get; set; }
+
+        public Frutas Frutas { get; set; }
     }
 }

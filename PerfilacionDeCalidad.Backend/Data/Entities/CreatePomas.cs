@@ -12,7 +12,6 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         public string Placa { get; set; }
         public bool Estado { get; set; }
         public Frutas Frutas { get; set; }
-        public Cajas Cajas { get; set; }
         public Fincas Finca { get; set; }
         public Puertos Puerto { get; set; }
         public Buques Buque { get; set; }

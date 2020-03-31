@@ -15,7 +15,7 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
 
         public Palets Palet { get; set; }
 
-        public DateTime LecturaPalet { get; set; }
+        public DateTime RegisterDate { get; set; }
 
         [MaxLength(100, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string Punto { get; set; }

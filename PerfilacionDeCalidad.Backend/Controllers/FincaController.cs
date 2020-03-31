@@ -73,6 +73,8 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 if (!this.ExistFinca(Finca.ID))
                 {
                     Fincas finca = new Fincas();
+                    finca.Pomas = Finca.Pomas;
+                    finca.Frutas = Finca.Frutas;
                     finca.Codigo = Finca.ID;
                     finca.FincaName = Finca.FincaName;
                     finca.Estado = true;

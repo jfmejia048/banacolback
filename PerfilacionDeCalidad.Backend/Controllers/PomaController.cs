@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
+using PerfilacionDeCalidad.Backend.Enum;
 using PerfilacionDeCalidad.Backend.Helpers;
 using System;
 using System.Collections.Generic;
@@ -53,10 +54,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 EndDate = EndDate.AddDays(-1);
             }
             var Pomas = (from Poma in _dataContext.Pomas
-                         join Caja in _dataContext.Cajas on Poma.Codigo equals Caja.Pomas.Codigo
-                         join Fruta in _dataContext.Frutas on Caja.Frutas.ID equals Fruta.ID
-                         join Palets in _dataContext.Palets on Caja.Codigo equals Palets.Caja.Codigo
-                         join Finca in _dataContext.Fincas on Palets.Finca.Codigo equals Finca.Codigo
+                         join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
+                         join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
+                         join Palets in _dataContext.Palets on Finca.Codigo equals Palets.Finca.Codigo
                          join Puerto in _dataContext.Puertos on Palets.Puerto.Codigo equals Puerto.Codigo
                          join Buque in _dataContext.Buques on Palets.Buque.Codigo equals Buque.Codigo
                          join Exportador in _dataContext.Exportadores on Palets.Exportador.Codigo equals Exportador.Codigo
@@ -64,6 +64,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                          where Poma.FechaRegistro.ToLocalTime() >= StartDate && Poma.FechaRegistro.ToLocalTime() <= EndDate
                          select new
                          {
+                             IdPoma = Poma.ID,
                              CodigoPalet = Palets.Codigo,
                              Finca = Finca.FincaName,
                              TerminalDestino = Puerto.PuertoName,
@@ -75,7 +76,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                              Salida = Palets.SalidaFinca,
                              Estimado = Palets.Estimado,
                              LlegadaTerminal = Palets.LlegadaTerminal,
-                             Cajas = Caja.Estado,
+                             Cajas = Poma.Recibido,
                              Exportador = Exportador.ExportadorName,
                              Destino = Destino.DestinoName,
                              Carga = Palets.Carga,
@@ -87,6 +88,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
             var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
                 .Select(x => new {
+                    x.FirstOrDefault().IdPoma,
                     x.FirstOrDefault().Finca,
                     x.FirstOrDefault().TerminalDestino,
                     x.FirstOrDefault().Poma,
@@ -151,8 +153,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     P.Codigo = Poma.ID;
                     P.Numero = Poma.Numero;
                     P.Placa = Poma.Placa;
-                    P.Estado = true;
+                    P.Estado = (int)EstadosPoma.NoChequeado;
                     P.FechaRegistro = Poma.FechaRegistro;
+                    P.Recibido = false;
+                    P.Delete = true;
                     ListPoma.Add(P);
                 }
             }
@@ -169,7 +173,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             DestinoController destinoController = new DestinoController(_dataContext);
             FrutasController frutasController = new FrutasController(_dataContext);
             FincaController fincaController = new FincaController(_dataContext);
-            CajaController cajaController = new CajaController(_dataContext, _NotificationHubContext);
             PaletController paletController = new PaletController(_dataContext);
             List<Pomas> ListPoma = new List<Pomas>();
             foreach (var Poma in Pomas)
@@ -184,8 +187,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         P.Codigo = Poma.ID;
                         P.Numero = Poma.Numero;
                         P.Placa = Poma.Placa;
-                        P.Estado = true;
+                        P.Estado = (int)EstadosPoma.NoChequeado;
                         P.FechaRegistro = DateTime.UtcNow;
+                        P.Recibido = false;
+                        P.Delete = true;
                         pomas.Add(P);
                         pomas = await this.Create(pomas);
                     }
@@ -205,22 +210,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         frutas.Add(_dataContext.Frutas.First(x => x.Codigo == Poma.Frutas.ID));
                     }
 
-                    List<Cajas> cajas = new List<Cajas>();
-                    if (!cajaController.ExistCaja(Poma.Cajas.ID))
-                    {
-                        Poma.Cajas.Frutas = frutas.First();
-                        Poma.Cajas.Pomas = pomas.First();
-                        cajas.Add(Poma.Cajas);
-                        cajas = await cajaController.Create(cajas);
-                    }
-                    else
-                    {
-                        cajas.Add(_dataContext.Cajas.First(x => x.Codigo == Poma.Cajas.ID));
-                    }
-
                     List<Fincas> finca = new List<Fincas>();
                     if (!fincaController.ExistFinca(Poma.Finca.ID))
                     {
+                        Poma.Finca.Frutas = frutas.First();
+                        Poma.Finca.Pomas = pomas.First();
                         finca.Add(Poma.Finca);
                         finca = await fincaController.Create(finca);
                     }
@@ -296,7 +290,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                             Palet.Buque = _dataContext.Buques.First(x => x.Codigo == Poma.Buque.ID);
                             Palet.Destino = _dataContext.Destinos.First(x => x.Codigo == Poma.Destino.ID);
                             Palet.Exportador = _dataContext.Exportadores.First(x => x.Codigo == Poma.Exportador.ID);
-                            Palet.Caja = _dataContext.Cajas.First(x => x.Codigo == Poma.Cajas.ID);
                             _dataContext.Palets.Add(Palet);
                         }
                     }
@@ -351,7 +344,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             if (_dataContext.Pomas.Any(x => x.Codigo == Poma.ID))
             {
                 var poma = _dataContext.Pomas.First(x => x.Codigo == Poma.ID);
-                poma.Estado = !poma.Estado;
+                poma.Delete = !poma.Delete;
                 try
                 {
                     await _dataContext.SaveChangesAsync();
@@ -371,6 +364,27 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         public bool ExistPoma(int id)
         {
             return _dataContext.Pomas.Any(x => x.Codigo == id);
+        }
+
+        [HttpPost]
+        [Route("ReceiveBoxes")]
+        public async Task<IActionResult> ReceiveBoxes(Pomas Pomas)
+        {
+            try
+            {
+                var poma = _dataContext.Pomas.Where(x => x.Codigo == Pomas.Codigo).FirstOrDefault();
+                if(poma == null)
+                {
+                    return NotFound();
+                }
+                poma.Recibido = true;
+                await _dataContext.SaveChangesAsync();
+                return Ok(new { Data = "Editado correctamente", Success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Data = ex.ToString(), Success = false });
+            }
         }
     }
 }

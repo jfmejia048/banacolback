@@ -12,14 +12,12 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         public int ID { get; set; }
         [Required]
         public int Codigo { get; set; }
-
         public int Numero { get; set; }
-
         [MaxLength(10, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string Placa { get; set; }
-
-        public bool Estado { get; set; }
-
+        public int Estado { get; set; }
         public DateTime FechaRegistro { get; set; }
+        public bool Recibido { get; set; }
+        public bool Delete { get; set; }
     }
 }
