@@ -31,9 +31,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Buques = _dataContext.Buques.Select(x => new
                 {
-                    ID = x.Codigo,
-                    BuqueName = x.BuqueName,
-                    Estado = x.Estado
+                    x.ID,
+                    x.Codigo,
+                    x.BuqueName,
+                    x.Estado
                 }).ToList();
                 var Fincas = _dataContext.Buques.ToList();
                 return Ok(new { Data = Buques, Success = true });
@@ -55,9 +56,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 ListBuque = await this.Create(Buques);
                 var Buque = ListBuque.Select(x => new
                 {
-                    ID = x.Codigo,
-                    BuqueName = x.BuqueName,
-                    Estado = x.Estado
+                    x.ID, 
+                    x.Codigo,
+                    x.BuqueName,
+                    x.Estado
                 }).ToList();
                 return Ok(new { Data = Buque, Success = true });
             }
@@ -72,10 +74,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Buques> ListBuque = new List<Buques>();
             foreach (var Buque in Buques)
             {
-                if (!this.ExistBuque(Buque.ID))
+                if (!this.ExistBuque(Buque.Codigo))
                 {
                     Buques buques = new Buques();
-                    buques.Codigo = Buque.ID;
+                    buques.Codigo = Buque.Codigo;
                     buques.BuqueName = Buque.BuqueName;
                     buques.Estado = true;
                     ListBuque.Add(buques);
@@ -90,18 +92,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Edit")]
         public async Task<IActionResult> EditBuque(Buques Buque)
         {
-            if (_dataContext.Buques.Any(x => x.Codigo == Buque.ID))
+            if (_dataContext.Buques.Any(x => x.Codigo == Buque.Codigo))
             {
-                var Buques = _dataContext.Buques.First(x => x.Codigo == Buque.ID);
+                var Buques = _dataContext.Buques.First(x => x.Codigo == Buque.Codigo);
                 Buques.BuqueName = Buque.BuqueName;
                 try
                 {
                     await _dataContext.SaveChangesAsync();
                     return Ok(new { Data = new
                     {
-                        ID = Buques.Codigo,
-                        BuqueName = Buques.BuqueName,
-                        Estado = Buques.Estado
+                        Buque.ID,
+                        Buques.Codigo,
+                        Buques.BuqueName,
+                        Buques.Estado
                     }, Success = true });
                 }
                 catch (Exception ex)
@@ -111,7 +114,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "El buque con codigo " + Buque.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "El buque con codigo " + Buque.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 
@@ -119,18 +122,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeleteBuque(Buques Buque)
         { 
-            if (_dataContext.Buques.Any(x => x.Codigo == Buque.ID))
+            if (_dataContext.Buques.Any(x => x.Codigo == Buque.Codigo))
             {
-                var buque = _dataContext.Buques.First(x => x.Codigo == Buque.ID);
+                var buque = _dataContext.Buques.First(x => x.Codigo == Buque.Codigo);
                 buque.Estado = !buque.Estado;
                 try
                 {
                     await _dataContext.SaveChangesAsync();
                     return Ok(new { Data = new
                     {
-                        ID = buque.Codigo,
-                        BuqueName = buque.BuqueName,
-                        Estado = buque.Estado
+                        buque.ID,
+                        buque.Codigo,
+                        buque.BuqueName,
+                        buque.Estado
                     }, Success = true });
                 }
                 catch (Exception ex)
@@ -140,7 +144,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "El buque con codigo " + Buque.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "El buque con codigo " + Buque.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 

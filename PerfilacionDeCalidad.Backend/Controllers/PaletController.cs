@@ -43,8 +43,8 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             var Pomas = (from Poma in _dataContext.Pomas
                          join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
-                         join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
-                         join Palet in _dataContext.Palets on Finca.Codigo equals Palet.Finca.Codigo
+                         join Fruta in _dataContext.Frutas on Poma.Codigo equals Fruta.Poma.Codigo
+                         join Palet in _dataContext.Palets on Fruta.Codigo equals Palet.Fruta.Codigo
                          join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
                          join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
                          join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
@@ -79,8 +79,8 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Palets = (from Poma in _dataContext.Pomas
                               join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
-                              join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
-                              join Palet in _dataContext.Palets on Finca.Codigo equals Palet.Finca.Codigo
+                              join Fruta in _dataContext.Frutas on Poma.Codigo equals Fruta.Poma.Codigo
+                              join Palet in _dataContext.Palets on Fruta.Codigo equals Palet.Fruta.Codigo
                               join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
                               join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
                               join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
@@ -88,6 +88,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                               where Palet.CodigoPalet == Codigo.CodigoPalet
                              select new
                              {
+                                 IdPallet  = Palet.ID,
                                  Finca = Finca.FincaName,
                                  TerminalDestino = Puerto.PuertoName,
                                  Poma = Poma.Numero,
@@ -103,7 +104,8 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                                  Carga = Palet.Carga,
                                  CodigoDeBarras = Palet.CodigoPalet,
                                  CajasPalet = Palet.NumeroCajas,
-                                 Palet.Perfilar
+                                 Palet.Perfilar,
+                                 CaraPallet = Palet.CaraPalet
                              }).FirstOrDefault();
                 return Ok(new { Data = Palets, Success = true });
             }
@@ -114,15 +116,15 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         }
 
         [HttpPost]
-        [Route("Perfilar")]
-        public IActionResult Perfilar(Palets Codigo)
+        [Route("GuardarCara")]
+        public IActionResult Perfilar(Palets pallet)
         {
             try
             {
-                var Palet = _dataContext.Palets.Where(x => x.Codigo == Codigo.ID).FirstOrDefault();
+                var Palet = _dataContext.Palets.Where(x => x.ID == pallet.ID).FirstOrDefault();
                 if(Palet != null)
                 {
-                    Palet.Perfilar = !Palet.Perfilar;
+                    Palet.CaraPalet = pallet.CaraPalet;
                     _dataContext.SaveChanges();
                     return Ok(new { Data = Palet, success = true });
                 }

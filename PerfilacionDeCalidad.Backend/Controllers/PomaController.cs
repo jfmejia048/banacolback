@@ -6,16 +6,18 @@ using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
 using PerfilacionDeCalidad.Backend.Enum;
 using PerfilacionDeCalidad.Backend.Helpers;
+using PerfilacionDeCalidad.Backend.Logic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace PerfilacionDeCalidad.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Administrador", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "Administrador,Usuario", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PomaController : ControllerBase
     {
         private readonly DataContext _dataContext;
@@ -45,79 +47,13 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         public object Get()
         {
             List<object> retList = new List<object>();
-            var currentDate = DateTime.UtcNow.ToLocalTime();
-            var StartDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 3, 0, 0);
-            var EndDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day + 1, 2, 59, 0);
-            if(currentDate < StartDate)
-            {
-                StartDate = StartDate.AddDays(-1);
-                EndDate = EndDate.AddDays(-1);
-            }
-            var Pomas = (from Poma in _dataContext.Pomas
-                         join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
-                         join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
-                         join Palets in _dataContext.Palets on Finca.Codigo equals Palets.Finca.Codigo
-                         join Puerto in _dataContext.Puertos on Palets.Puerto.Codigo equals Puerto.Codigo
-                         join Buque in _dataContext.Buques on Palets.Buque.Codigo equals Buque.Codigo
-                         join Exportador in _dataContext.Exportadores on Palets.Exportador.Codigo equals Exportador.Codigo
-                         join Destino in _dataContext.Destinos on Palets.Destino.Codigo equals Destino.Codigo
-                         where Poma.FechaRegistro.ToLocalTime() >= StartDate && Poma.FechaRegistro.ToLocalTime() <= EndDate
-                         select new
-                         {
-                             IdPoma = Poma.ID,
-                             CodigoPalet = Palets.Codigo,
-                             Finca = Finca.FincaName,
-                             TerminalDestino = Puerto.PuertoName,
-                             Poma = Poma.Numero,
-                             FechaCreacion = Poma.FechaRegistro.ToLocalTime(),
-                             Fruta = Fruta.FrutaName,
-                             Buque = Buque.BuqueName,
-                             Llegada = Palets.LlegadaTerminal,
-                             Salida = Palets.SalidaFinca,
-                             Estimado = Palets.Estimado,
-                             LlegadaTerminal = Palets.LlegadaTerminal,
-                             Cajas = Poma.Recibido,
-                             Exportador = Exportador.ExportadorName,
-                             Destino = Destino.DestinoName,
-                             Carga = Palets.Carga,
-                             CodigoDeBarras = Palets.CodigoPalet,
-                             idPallet = Palets.ID,
-                             CajasPalet = Palets.NumeroCajas,
-                             Palets.Perfilar
-                         }).OrderBy(x => x.FechaCreacion).ToList();
 
-            var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
-                .Select(x => new {
-                    x.FirstOrDefault().IdPoma,
-                    x.FirstOrDefault().Finca,
-                    x.FirstOrDefault().TerminalDestino,
-                    x.FirstOrDefault().Poma,
-                    x.FirstOrDefault().FechaCreacion,
-                    Frutas = x.GroupBy(g2 => g2.Fruta).Select(s2 => new {
-                        s2.FirstOrDefault().Fruta,
-                        s2.FirstOrDefault().Buque,
-                        s2.FirstOrDefault().Llegada,
-                        s2.FirstOrDefault().Salida,
-                        s2.FirstOrDefault().Estimado,
-                        s2.FirstOrDefault().LlegadaTerminal,
-                        s2.FirstOrDefault().Cajas,
-                        s2.FirstOrDefault().Exportador,
-                        s2.FirstOrDefault().Destino,
-                        Palet = s2.Select(s3 => new
-                        {
-                            s3.idPallet,
-                            s3.CodigoPalet,
-                            s3.Carga,
-                            s3.CodigoDeBarras,
-                            s3.CajasPalet,
-                            s3.Perfilar
-                        })
-                    }).ToList()
-                });
+            PomasLogic pomasLogic = new PomasLogic(this._dataContext);
+            var List = pomasLogic.GetData();
 
             List.ToList().ForEach(x =>
             {
-                List<int> palets = x.Frutas.FirstOrDefault().Palet.Select(s => s.idPallet).ToList();
+                List<int> palets = x.Frutas.FirstOrDefault().Pallets.Select(s => s.IdPallet).ToList();
                 if(!_dataContext.Tracking.Where(a => palets.Contains(a.Palet.ID)).Any())
                 {
                     retList.Add(x);
@@ -147,10 +83,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Pomas> ListPoma = new List<Pomas>();
             foreach (var Poma in Pomas)
             {
-                if (!this.ExistPoma(Poma.ID))
+                if (!this.ExistPoma(Poma.Codigo))
                 {
                     Pomas P = new Pomas();
-                    P.Codigo = Poma.ID;
+                    P.ID = Poma.ID;
+                    P.Codigo = Poma.Codigo;
                     P.Numero = Poma.Numero;
                     P.Placa = Poma.Placa;
                     P.Estado = (int)EstadosPoma.NoChequeado;
@@ -180,11 +117,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 try
                 {
                     List<Pomas> pomas = new List<Pomas>();
-                    if (!this.ExistPoma(Poma.ID))
+                    if (!this.ExistPoma(Poma.Codigo))
                     {
                         Pomas P = new Pomas();
-                        P.ID = Poma.ID;
-                        P.Codigo = Poma.ID;
+                        P.Codigo = Poma.Codigo;
                         P.Numero = Poma.Numero;
                         P.Placa = Poma.Placa;
                         P.Estado = (int)EstadosPoma.NoChequeado;
@@ -196,101 +132,104 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     }
                     else
                     {
-                        pomas.Add(_dataContext.Pomas.First(x => x.Codigo == Poma.ID));
-                    }
-
-                    List<Frutas> frutas = new List<Frutas>();
-                    if (!frutasController.ExistFruta(Poma.Frutas.ID))
-                    {
-                        frutas.Add(Poma.Frutas);
-                        frutas = await frutasController.Create(frutas);
-                    }
-                    else
-                    {
-                        frutas.Add(_dataContext.Frutas.First(x => x.Codigo == Poma.Frutas.ID));
+                        pomas.Add(_dataContext.Pomas.First(x => x.Codigo == Poma.Codigo));
                     }
 
                     List<Fincas> finca = new List<Fincas>();
-                    if (!fincaController.ExistFinca(Poma.Finca.ID))
+                    if (!fincaController.ExistFinca(Poma.Finca.Codigo))
                     {
-                        Poma.Finca.Frutas = frutas.First();
                         Poma.Finca.Pomas = pomas.First();
                         finca.Add(Poma.Finca);
                         finca = await fincaController.Create(finca);
                     }
                     else
                     {
-                        finca.Add(_dataContext.Fincas.First(x => x.Codigo == Poma.Finca.ID));
+                        finca.Add(_dataContext.Fincas.First(x => x.Codigo == Poma.Finca.Codigo));
                     }
 
                     List<Puertos> puertos = new List<Puertos>();
-                    if (!puertoController.ExistPuerto(Poma.Puerto.ID))
+                    if (!puertoController.ExistPuerto(Poma.Puerto.Codigo))
                     {
                         puertos.Add(Poma.Puerto);
                         puertos = await puertoController.Create(puertos);
                     }
                     else
                     {
-                        puertos.Add(_dataContext.Puertos.First(x => x.Codigo == Poma.Puerto.ID));
+                        puertos.Add(_dataContext.Puertos.First(x => x.Codigo == Poma.Puerto.Codigo));
                     }
 
-                    List<Buques> buques = new List<Buques>();
-                    if (!buqueController.ExistBuque(Poma.Buque.ID))
+                    foreach (var detail in Poma.DetailPoma)
                     {
-                        buques.Add(Poma.Buque);
-                        buques = await buqueController.Create(buques);
-                    }
-                    else
-                    {
-                        buques.Add(_dataContext.Buques.First(x => x.Codigo == Poma.Buque.ID));
-                    }
-
-                    List<Destinos> destinos = new List<Destinos>();
-                    if (!destinoController.ExistDestino(Poma.Destino.ID))
-                    {
-                        destinos.Add(Poma.Destino);
-                        destinos = await destinoController.Create(destinos);
-                    }
-                    else
-                    {
-                        destinos.Add(_dataContext.Destinos.First(x => x.Codigo == Poma.Destino.ID));
-                    }
-
-                    List<Exportadores> exportadores = new List<Exportadores>();
-                    if (!exportadorController.ExistExportador(Poma.Exportador.ID))
-                    {
-                        exportadores.Add(Poma.Exportador);
-                        exportadores = await exportadorController.Create(exportadores);
-                    }
-                    else
-                    {
-                        exportadores.Add(_dataContext.Exportadores.First(x => x.Codigo == Poma.Exportador.ID));
-                    }
-
-                    foreach (var palet in Poma.Palets)
-                    {
-                        if (!_dataContext.Palets.Any(x => x.Codigo == palet.ID))
+                        List<Frutas> frutas = new List<Frutas>();
+                        if (!frutasController.ExistFruta(detail.Frutas.Codigo))
                         {
-                            Palets Palet = new Palets();
-                            Palet.Codigo = palet.ID;
-                            Palet.CodigoPalet = palet.CodigoPalet;
-                            Palet.LlegadaCamion = palet.LlegadaCamion;
-                            Palet.SalidaFinca = palet.SalidaFinca;
-                            Palet.Estimado = palet.Estimado;
-                            Palet.LlegadaTerminal = palet.LlegadaTerminal;
-                            Palet.LecturaPalet = palet.LecturaPalet;
-                            Palet.UsuarioLectura = palet.UsuarioLectura;
-                            Palet.InspeccionPalet = palet.InspeccionPalet;
-                            Palet.CaraPalet = palet.CaraPalet;
-                            Palet.NumeroCajas = palet.NumeroCajas;
-                            Palet.Carga = palet.Carga;
-                            Palet.Perfilar = palet.Perfilar;
-                            Palet.Finca = _dataContext.Fincas.First(x => x.Codigo == Poma.Finca.ID);
-                            Palet.Puerto = _dataContext.Puertos.First(x => x.Codigo == Poma.Puerto.ID);
-                            Palet.Buque = _dataContext.Buques.First(x => x.Codigo == Poma.Buque.ID);
-                            Palet.Destino = _dataContext.Destinos.First(x => x.Codigo == Poma.Destino.ID);
-                            Palet.Exportador = _dataContext.Exportadores.First(x => x.Codigo == Poma.Exportador.ID);
-                            _dataContext.Palets.Add(Palet);
+                            detail.Frutas.Poma = pomas.First();
+                            frutas.Add(detail.Frutas);
+                            frutas = await frutasController.Create(frutas);
+                        }
+                        else
+                        {
+                            frutas.Add(_dataContext.Frutas.First(x => x.Codigo == detail.Frutas.Codigo));
+                        }
+
+                        List<Destinos> destinos = new List<Destinos>();
+                        if (!destinoController.ExistDestino(detail.Destino.Codigo))
+                        {
+                            destinos.Add(detail.Destino);
+                            destinos = await destinoController.Create(destinos);
+                        }
+                        else
+                        {
+                            destinos.Add(_dataContext.Destinos.First(x => x.Codigo == detail.Destino.Codigo));
+                        }
+
+                        List<Buques> buques = new List<Buques>();
+                        if (!buqueController.ExistBuque(detail.Buque.Codigo))
+                        {
+                            buques.Add(detail.Buque);
+                            buques = await buqueController.Create(buques);
+                        }
+                        else
+                        {
+                            buques.Add(_dataContext.Buques.First(x => x.Codigo == detail.Buque.Codigo));
+                        }
+
+                        List<Exportadores> exportadores = new List<Exportadores>();
+                        if (!exportadorController.ExistExportador(detail.Exportador.Codigo))
+                        {
+                            exportadores.Add(detail.Exportador);
+                            exportadores = await exportadorController.Create(exportadores);
+                        }
+                        else
+                        {
+                            exportadores.Add(_dataContext.Exportadores.First(x => x.Codigo == detail.Exportador.Codigo));
+                        }
+
+                        foreach (var palet in detail.Palets)
+                        {
+                            if (!_dataContext.Palets.Any(x => x.Codigo == palet.Codigo))
+                            {
+                                Palets Palet = new Palets();
+                                Palet.Codigo = palet.Codigo;
+                                Palet.CodigoPalet = palet.CodigoPalet;
+                                Palet.LlegadaCamion = palet.LlegadaCamion;
+                                Palet.SalidaFinca = palet.SalidaFinca;
+                                Palet.Estimado = palet.Estimado;
+                                Palet.LlegadaTerminal = palet.LlegadaTerminal;
+                                Palet.LecturaPalet = palet.LecturaPalet;
+                                Palet.UsuarioLectura = palet.UsuarioLectura;
+                                Palet.InspeccionPalet = palet.InspeccionPalet;
+                                Palet.CaraPalet = palet.CaraPalet;
+                                Palet.NumeroCajas = palet.NumeroCajas;
+                                Palet.Carga = palet.Carga;
+                                Palet.Perfilar = false;
+                                Palet.Fruta = frutas.FirstOrDefault();
+                                Palet.Puerto = puertos.FirstOrDefault();
+                                Palet.Buque = buques.FirstOrDefault();
+                                Palet.Destino = destinos.FirstOrDefault();
+                                Palet.Exportador = exportadores.FirstOrDefault();
+                                _dataContext.Palets.Add(Palet);
+                            }
                         }
                     }
                 }

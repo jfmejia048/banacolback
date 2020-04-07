@@ -8,6 +8,7 @@ namespace PerfilacionDeCalidad.PCL.Models
 {
     public class InfoPaletResponse
     {
+        public int idPallet { get; set; }
         public string finca { get; set; }
         public string terminalDestino { get; set; }
         public int poma { get; set; }
@@ -24,5 +25,6 @@ namespace PerfilacionDeCalidad.PCL.Models
         public string codigoDeBarras { get; set; }
         public int cajasPalet { get; set; }
         public bool perfilar { get; set; }
+        public int caraPallet { get; set; }
     }
 }

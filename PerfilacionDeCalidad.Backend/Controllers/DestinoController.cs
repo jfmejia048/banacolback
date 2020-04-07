@@ -30,9 +30,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Destino = _dataContext.Destinos.Select(x => new
                 {
-                    ID = x.Codigo,
-                    DestinoName = x.DestinoName,
-                    Estado = x.Estado
+                    x.ID,
+                    x.Codigo,
+                    x.DestinoName,
+                    x.Estado
                 }).ToList();
                 return Ok(new { Data = Destino, Success = true });
             }
@@ -55,9 +56,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     Data = ListDestino.Select(x => new
                     {
-                        ID = x.Codigo,
-                        DestinoName = x.DestinoName,
-                        Estado = x.Estado
+                        x.ID,
+                        x.Codigo,
+                        x.DestinoName,
+                        x.Estado
                     }).ToList(),
                     Success = true
                 });
@@ -73,10 +75,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Destinos> ListDestino = new List<Destinos>();
             foreach (var Destino in Destinos)
             {
-                if (!this.ExistDestino(Destino.ID))
+                if (!this.ExistDestino(Destino.Codigo))
                 {
                     Destinos destino = new Destinos();
-                    destino.Codigo = Destino.ID;
+                    destino.Codigo = Destino.Codigo;
                     destino.DestinoName = Destino.DestinoName;
                     destino.Estado = true;
                     ListDestino.Add(destino);
@@ -93,7 +95,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var destinos = _dataContext.Destinos.FirstOrDefault(x => x.Codigo == Destinos.ID);
+                var destinos = _dataContext.Destinos.FirstOrDefault(x => x.Codigo == Destinos.Codigo);
                 if (destinos != null)
                 {
                     destinos.DestinoName = Destinos.DestinoName;
@@ -102,9 +104,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         Data = new
                         {
-                            ID = destinos.Codigo,
-                            DestinoName = destinos.DestinoName,
-                            Estado = destinos.Estado
+                            destinos.ID,
+                            destinos.Codigo,
+                            destinos.DestinoName,
+                            destinos.Estado
                         },
                         Success = true
                     });
@@ -125,9 +128,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeleteDestino(Destinos Destinos)
         {
-            if (_dataContext.Destinos.Any(x => x.Codigo == Destinos.ID))
+            if (_dataContext.Destinos.Any(x => x.Codigo == Destinos.Codigo))
             {
-                var Destino = _dataContext.Destinos.First(x => x.Codigo == Destinos.ID);
+                var Destino = _dataContext.Destinos.First(x => x.Codigo == Destinos.Codigo);
                 Destino.Estado = !Destino.Estado;
                 try
                 {
@@ -136,9 +139,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         Data = new
                         {
-                            ID = Destino.Codigo,
-                            DestinoName = Destino.DestinoName,
-                            Estado = Destino.Estado
+                            Destino.ID,
+                            Destino.Codigo,
+                            Destino.DestinoName,
+                            Destino.Estado
                         },
                         Success = true
                     });
@@ -150,7 +154,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "el destino con codigo " + Destinos.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "el destino con codigo " + Destinos.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 

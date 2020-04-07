@@ -30,9 +30,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Puertos = _dataContext.Puertos.Select(x => new
                 {
-                    ID = x.Codigo,
-                    PuertoName = x.PuertoName,
-                    Estado = x.Estado
+                    x.ID,
+                    x.Codigo,
+                    x.PuertoName,
+                    x.Estado
                 }).ToList();
                 return Ok(new { Data = Puertos, Success = true });
             }
@@ -55,9 +56,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     Data = ListPuerto.Select(x => new
                     {
-                        ID = x.Codigo,
-                        PuertoName = x.PuertoName,
-                        Estado = x.Estado
+                        x.ID,
+                        x.Codigo,
+                        x.PuertoName,
+                        x.Estado
                     }).ToList(),
                     Success = true
                 });
@@ -73,10 +75,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Puertos> ListPuerto = new List<Puertos>();
             foreach (var Puerto in Puertos)
             {
-                if (!this.ExistPuerto(Puerto.ID))
+                if (!this.ExistPuerto(Puerto.Codigo))
                 {
                     Puertos puerto = new Puertos();
-                    puerto.Codigo = Puerto.ID;
+                    puerto.Codigo = Puerto.Codigo;
                     puerto.PuertoName = Puerto.PuertoName;
                     puerto.Estado = true;
                     ListPuerto.Add(puerto);
@@ -91,9 +93,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Edit")]
         public async Task<IActionResult> EditPuerto(Puertos Puertos)
         {
-            if (_dataContext.Puertos.Any(x => x.Codigo == Puertos.ID))
+            if (_dataContext.Puertos.Any(x => x.Codigo == Puertos.Codigo))
             {
-                var Puerto = _dataContext.Puertos.First(x => x.Codigo == Puertos.ID);
+                var Puerto = _dataContext.Puertos.First(x => x.Codigo == Puertos.Codigo);
                 Puerto.PuertoName = Puertos.PuertoName;
                 try
                 {
@@ -102,9 +104,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         Data = new
                         {
-                            ID = Puerto.Codigo,
-                            PuertoName = Puerto.PuertoName,
-                            Estado = Puerto.Estado
+                            Puerto.ID,
+                            Puerto.Codigo,
+                            Puerto.PuertoName,
+                            Puerto.Estado
                         },
                         Success = true
                     });
@@ -116,7 +119,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "El puerto con codigo " + Puertos.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "El puerto con codigo " + Puertos.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 
@@ -124,9 +127,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeletePuerto(Puertos Puertos)
         {
-            if (_dataContext.Puertos.Any(x => x.Codigo == Puertos.ID))
+            if (_dataContext.Puertos.Any(x => x.Codigo == Puertos.Codigo))
             {
-                var Puerto = _dataContext.Puertos.First(x => x.Codigo == Puertos.ID);
+                var Puerto = _dataContext.Puertos.First(x => x.Codigo == Puertos.Codigo);
                 Puerto.Estado = !Puerto.Estado;
                 try
                 {
@@ -135,9 +138,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         Data = new
                         {
-                            ID = Puerto.Codigo,
-                            PuertoName = Puerto.PuertoName,
-                            Estado = Puerto.Estado
+                            Puerto.ID,
+                            Puerto.Codigo,
+                            Puerto.PuertoName,
+                            Puerto.Estado
                         },
                         Success = true
                     });
@@ -149,7 +153,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "El Puerto con codigo " + Puertos.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "El Puerto con codigo " + Puertos.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 

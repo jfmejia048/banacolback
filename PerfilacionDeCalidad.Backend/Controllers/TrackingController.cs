@@ -7,6 +7,7 @@ using PerfilacionDeCalidad.Backend.Data;
 using PerfilacionDeCalidad.Backend.Data.Entities;
 using PerfilacionDeCalidad.Backend.Enum;
 using PerfilacionDeCalidad.Backend.Helpers;
+using PerfilacionDeCalidad.Backend.Logic;
 using PerfilacionDeCalidad.Backend.Models;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrador,Usuario", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TrackingController : ControllerBase
     {
         private readonly DataContext _dataContext;
@@ -57,106 +59,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Pomas = (from Poma in _dataContext.Pomas
-                             join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
-                             join Fruta in _dataContext.Frutas on Finca.Frutas.ID equals Fruta.ID
-                             join Palets in _dataContext.Palets on Finca.Codigo equals Palets.Finca.Codigo
-                             join Puerto in _dataContext.Puertos on Palets.Puerto.Codigo equals Puerto.Codigo
-                             join Buque in _dataContext.Buques on Palets.Buque.Codigo equals Buque.Codigo
-                             join Exportador in _dataContext.Exportadores on Palets.Exportador.Codigo equals Exportador.Codigo
-                             join Destino in _dataContext.Destinos on Palets.Destino.Codigo equals Destino.Codigo
-                             select new
-                             {
-                                 CodigoPalet = Palets.Codigo,
-                                 Finca = Finca.FincaName,
-                                 TerminalDestino = Puerto.PuertoName,
-                                 Poma = Poma.Numero,
-                                 EstadoPoma = EnumHelper.GetEnumDescription((EstadosPoma)Poma.Estado),
-                                 FechaCreacion = Poma.FechaRegistro.ToLocalTime(),
-                                 Fruta = Fruta.FrutaName,
-                                 Buque = Buque.BuqueName,
-                                 Llegada = Palets.LlegadaTerminal,
-                                 Salida = Palets.SalidaFinca,
-                                 Estimado = Palets.Estimado,
-                                 LlegadaTerminal = Palets.LlegadaTerminal,
-                                 Cajas = Poma.Recibido,
-                                 Exportador = Exportador.ExportadorName,
-                                 Destino = Destino.DestinoName,
-                                 Carga = Palets.Carga,
-                                 CodigoDeBarras = Palets.CodigoPalet,
-                                 idPallet = Palets.ID,
-                                 CajasPalet = Palets.NumeroCajas,
-                                 Palets.Perfilar
-                             }).OrderBy(x => x.FechaCreacion).ToList();
+                PomasLogic pomasLogic = new PomasLogic(this._dataContext);
 
-                var List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
-                    .Select(x => new {
-                        x.FirstOrDefault().Finca,
-                        x.FirstOrDefault().TerminalDestino,
-                        x.FirstOrDefault().Poma,
-                        x.FirstOrDefault().FechaCreacion,
-                        x.FirstOrDefault().EstadoPoma,
-                        Frutas = x.GroupBy(g2 => g2.Fruta).Select(s2 => new {
-                            s2.FirstOrDefault().Fruta,
-                            s2.FirstOrDefault().Buque,
-                            s2.FirstOrDefault().Llegada,
-                            s2.FirstOrDefault().Salida,
-                            s2.FirstOrDefault().Estimado,
-                            s2.FirstOrDefault().LlegadaTerminal,
-                            s2.FirstOrDefault().Cajas,
-                            s2.FirstOrDefault().Exportador,
-                            s2.FirstOrDefault().Destino,
-                            Palet = s2.Select(s3 => new
-                            {
-                                s3.idPallet,
-                                s3.CodigoPalet,
-                                s3.Carga,
-                                s3.CodigoDeBarras,
-                                s3.CajasPalet,
-                                s3.Perfilar
-                            })
-                        }).ToList()
-                    });
+                var List = pomasLogic.GetData(parameters.TipoExportar);
 
-                if (!string.IsNullOrEmpty(parameters.Finca))
-                {
-                    List = List.Where(x => x.Finca.ToLower().Contains(parameters.Finca.ToLower())).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(parameters.Puerto))
-                {
-                    List = List.Where(x => x.TerminalDestino.ToLower().Contains(parameters.Puerto.ToLower())).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(parameters.Buque))
-                {
-                    List = List.Where(x => x.Frutas.Any(w => w.Buque.ToLower().Contains(parameters.Buque.ToLower()))).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(parameters.Destino))
-                {
-                    List = List.Where(x => x.Frutas.Any(w => w.Destino.ToLower().Contains(parameters.Destino.ToLower()))).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(parameters.Exportador))
-                {
-                    List = List.Where(x => x.Frutas.Any(w => w.Exportador.ToLower().Contains(parameters.Exportador.ToLower()))).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(parameters.Fruta))
-                {
-                    List = List.Where(x => x.Frutas.Any(w => w.Fruta.ToLower().Contains(parameters.Fruta.ToLower()))).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(parameters.Poma))
-                {
-                    List = List.Where(x => x.Poma.ToString().ToLower().Contains(parameters.Poma.ToLower())).ToList();
-                }
-
-                if (parameters.RangoFechas[0].ToLocalTime() != null && parameters.RangoFechas[1].ToLocalTime() != null)
-                {
-                    List = List.Where(x => x.FechaCreacion >= parameters.RangoFechas[0].ToLocalTime() && x.FechaCreacion <= parameters.RangoFechas[1].ToLocalTime()).ToList();
-                }
+                List = pomasLogic.GetFilter(List, parameters);
 
                 return Ok(new { Data = List, Success = true });
             }catch(Exception ex)
@@ -171,9 +78,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Where(x => x.Palet.Codigo == Palet.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Where(x => x.Palet.Codigo == Palet.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -254,9 +162,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Puerto).Where(x => x.Palet.Puerto.Codigo == Puerto.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Puerto).Where(x => x.Palet.Puerto.Codigo == Puerto.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -277,9 +186,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Buque).Where(x => x.Palet.Buque.Codigo == Buque.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Buque).Where(x => x.Palet.Buque.Codigo == Buque.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -300,9 +210,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Destino).Where(x => x.Palet.Destino.Codigo == Destino.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Destino).Where(x => x.Palet.Destino.Codigo == Destino.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -323,9 +234,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Exportador).Where(x => x.Palet.Exportador.Codigo == Exportador.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Exportador).Where(x => x.Palet.Exportador.Codigo == Exportador.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -346,9 +258,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Finca.Frutas).Where(x => x.Palet.Finca.Frutas.Codigo == Fruta.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Fruta).Where(x => x.Palet.Fruta.Codigo == Fruta.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -369,9 +282,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Finca.Pomas).Where(x => x.Palet.Finca.Pomas.Codigo == Poma.ID).Select(x => new
+                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Fruta.Poma).Where(x => x.Palet.Fruta.Poma.Codigo == Poma.Codigo).Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -396,7 +310,8 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 ListTracking = await this.Create(Trackings);
                 var Traking = ListTracking.Select(x => new
                 {
-                    ID = x.Codigo,
+                    x.ID,
+                    x.Codigo,
                     CodigoPalet = x.Palet.Codigo,
                     x.RegisterDate,
                     x.Punto,
@@ -416,13 +331,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Tracking> ListTracking = new List<Tracking>();
             foreach (var Tracking in Trackings)
             {
-                var Palet = _dataContext.Palets.FirstOrDefault(x => x.Codigo == Tracking.Palet.ID);
+                var Palet = _dataContext.Palets.FirstOrDefault(x => x.Codigo == Tracking.Palet.Codigo);
                 if (Palet != null)
                 {
-                    if (!this.ExistsTracking(Tracking.ID))
+                    if (!this.ExistsTracking(Tracking.Codigo))
                     {
                         Tracking tracking = new Tracking();
-                        tracking.Codigo = Tracking.ID;
+                        tracking.ID = Tracking.ID;
+                        tracking.Codigo = Tracking.Codigo;
                         tracking.RegisterDate = Tracking.RegisterDate;
                         tracking.Palet = Palet;
                         tracking.Punto = Tracking.Punto;

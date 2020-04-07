@@ -30,9 +30,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Exportador = _dataContext.Exportadores.Select(x => new
                 {
-                    ID = x.Codigo,
-                    ExportadorName = x.ExportadorName,
-                    Estado = x.Estado
+                    x.ID,
+                    x.Codigo,
+                    x.ExportadorName,
+                    x.Estado
                 }).ToList();
                 return Ok(new { Data = Exportador, Success = true });
             }
@@ -55,9 +56,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     Data = ListExportador.Select(x => new
                     {
-                        ID = x.Codigo,
-                        ExportadorName = x.ExportadorName,
-                        Estado = x.Estado
+                        x.ID,
+                        x.Codigo,
+                        x.ExportadorName,
+                        x.Estado
                     }).ToList(),
                     Success = true
                 });
@@ -73,10 +75,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Exportadores> ListExportadores = new List<Exportadores>();
             foreach (var Exportador in Exportadores)
             {
-                if (!this.ExistExportador(Exportador.ID))
+                if (!this.ExistExportador(Exportador.Codigo))
                 {
                     Exportadores exportador = new Exportadores();
-                    exportador.Codigo = Exportador.ID;
+                    exportador.Codigo = Exportador.Codigo;
                     exportador.ExportadorName = Exportador.ExportadorName;
                     exportador.Estado = true;
                     ListExportadores.Add(exportador);
@@ -91,9 +93,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Edit")]
         public async Task<IActionResult> EditExportador(Exportadores Exportadores)
         {
-            if (_dataContext.Exportadores.Any(x => x.Codigo == Exportadores.ID))
+            if (_dataContext.Exportadores.Any(x => x.Codigo == Exportadores.Codigo))
             {
-                var exportadores = _dataContext.Exportadores.First(x => x.Codigo == Exportadores.ID);
+                var exportadores = _dataContext.Exportadores.First(x => x.Codigo == Exportadores.Codigo);
                 exportadores.ExportadorName = Exportadores.ExportadorName;
                 try
                 {
@@ -102,9 +104,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         Data = new
                         {
-                            ID = exportadores.Codigo,
-                            BuqueName = exportadores.ExportadorName,
-                            Estado = exportadores.Estado
+                            exportadores.ID,
+                            exportadores.Codigo,
+                            exportadores.ExportadorName,
+                            exportadores.Estado
                         },
                         Success = true
                     });
@@ -116,7 +119,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "El exportador con codigo " + Exportadores.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "El exportador con codigo " + Exportadores.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 
@@ -124,9 +127,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeleteExportador(Exportadores Exportadores)
         {
-            if (_dataContext.Exportadores.Any(x => x.Codigo == Exportadores.ID))
+            if (_dataContext.Exportadores.Any(x => x.Codigo == Exportadores.Codigo))
             {
-                var exportadores = _dataContext.Exportadores.First(x => x.Codigo == Exportadores.ID);
+                var exportadores = _dataContext.Exportadores.First(x => x.Codigo == Exportadores.Codigo);
                 exportadores.Estado = !exportadores.Estado;
                 try
                 {
@@ -135,9 +138,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         Data = new
                         {
-                            ID = exportadores.Codigo,
-                            BuqueName = exportadores.ExportadorName,
-                            Estado = exportadores.Estado
+                            exportadores.ID,
+                            exportadores.Codigo,
+                            exportadores.ExportadorName,
+                            exportadores.Estado
                         },
                         Success = true
                     });
@@ -149,7 +153,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "El exportador con codigo " + Exportadores.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "El exportador con codigo " + Exportadores.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 

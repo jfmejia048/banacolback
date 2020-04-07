@@ -26,5 +26,7 @@ namespace PerfilacionDeCalidad.Backend.Models
         public string Poma { get; set; }
 
         public List<DateTime> RangoFechas { get; set; }
+
+        public int TipoExportar { get; set; }
     }
 }

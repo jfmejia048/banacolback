@@ -30,9 +30,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Fincas = _dataContext.Fincas.Select(x => new
                 {
-                    ID = x.Codigo,
-                    FincaName = x.FincaName,
-                    Estado = x.Estado
+                    x.ID,
+                    x.Codigo,
+                    x.FincaName,
+                    x.Estado
                 }).ToList();
                 return Ok(new { Data = Fincas, Success = true });
             }
@@ -54,9 +55,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 await _dataContext.SaveChangesAsync();
                 return Ok(new { Data = ListFinca.Select(x => new
                 {
-                    ID = x.Codigo,
-                    FincaName = x.FincaName,
-                    Estado = x.Estado
+                    x.ID,
+                    x.Codigo,
+                    x.FincaName,
+                    x.Estado
                 }).ToList(), Success = true });
             }
             catch(Exception ex)
@@ -70,12 +72,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Fincas> ListFinca = new List<Fincas>();
             foreach (var Finca in Fincas)
             {
-                if (!this.ExistFinca(Finca.ID))
+                if (!this.ExistFinca(Finca.Codigo))
                 {
                     Fincas finca = new Fincas();
                     finca.Pomas = Finca.Pomas;
-                    finca.Frutas = Finca.Frutas;
-                    finca.Codigo = Finca.ID;
+                    finca.Codigo = Finca.Codigo;
                     finca.FincaName = Finca.FincaName;
                     finca.Estado = true;
                     ListFinca.Add(finca);
@@ -90,18 +91,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Edit")]
         public async Task<IActionResult> EditFinca(Fincas Finca)
         {
-            if (_dataContext.Fincas.Any(x => x.Codigo == Finca.ID))
+            if (_dataContext.Fincas.Any(x => x.Codigo == Finca.Codigo))
             {
-                var finca = _dataContext.Fincas.First(x => x.Codigo == Finca.ID);
+                var finca = _dataContext.Fincas.First(x => x.Codigo == Finca.Codigo);
                 finca.FincaName = Finca.FincaName;
                 try
                 {
                     await _dataContext.SaveChangesAsync();
                     return Ok(new { Data = new
                     {
-                        ID = finca.Codigo,
-                        FincaName = finca.FincaName,
-                        Estado = finca.Estado
+                        finca.ID,
+                        finca.Codigo,
+                        finca.FincaName,
+                        finca.Estado
                     }, Success = true });
                 }
                 catch (Exception ex)
@@ -111,7 +113,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "La finca con codigo " + Finca.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "La finca con codigo " + Finca.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 
@@ -119,18 +121,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeleteFinca(Fincas Finca)
         {
-            if (_dataContext.Fincas.Any(x => x.Codigo == Finca.ID))
+            if (_dataContext.Fincas.Any(x => x.Codigo == Finca.Codigo))
             {
-                var finca = _dataContext.Fincas.First(x => x.Codigo == Finca.ID);
+                var finca = _dataContext.Fincas.First(x => x.Codigo == Finca.Codigo);
                 finca.Estado = !finca.Estado;
                 try
                 {
                     await _dataContext.SaveChangesAsync();
                     return Ok(new { Data = new
                     {
-                        ID = finca.Codigo,
-                        FincaName = finca.FincaName,
-                        Estado = finca.Estado
+                        finca.ID,
+                        finca.Codigo,
+                        finca.FincaName,
+                        finca.Estado
                     }, Success = true });
                 }
                 catch (Exception ex)
@@ -140,7 +143,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             else
             {
-                return BadRequest(new { Data = "La finca con codigo " + Finca.ID + " no se encuentra en la base de datos.", Success = false });
+                return BadRequest(new { Data = "La finca con codigo " + Finca.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 

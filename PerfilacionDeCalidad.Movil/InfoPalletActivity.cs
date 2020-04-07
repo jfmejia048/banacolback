@@ -32,8 +32,10 @@
         public TextView txtInfoPoma;
         public TextView txtInfoFinca;
         public TextView txtInfoTerminalDestino;
+        public TextView txtInfoCara;
         public Button btnInfoAleatorio;
         public string codigo;
+        public int idPallet;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -55,11 +57,39 @@
         private async void aleatorioCaraPallet(object sender, EventArgs e)
         {
             NavigationLoader.ShowLoading();
-            await Task.Delay(2000);
             Random random = new Random();
             var cara = random.Next(1, 6);
-            NavigationLoader.HideLoading();
-            this.PresentAlert("La cara seleccionada es la número: " + cara, false);
+            var data = new
+            {
+                ID = this.idPallet,
+                CaraPalet = cara
+            };
+            var response = await this.apiService.Post("Palet/GuardarCara", data, Settings.AccessToken);
+            if (response.success)
+            {
+                if (response.data != null)
+                {
+                    this.PresentAlert("La cara seleccionada es la número: " + cara, false);
+                    NavigationLoader.HideLoading();
+                }
+                else
+                {
+                    NavigationLoader.HideLoading();
+                    this.PresentAlert("Se presentó un error, por favor intente mas tarde", true);
+                }
+            }
+            else
+            {
+                NavigationLoader.HideLoading();
+                if (response.data == null)
+                {
+                    this.PresentAlert("Se ha presentado un problema interno", true);
+                }
+                else
+                {
+                    this.PresentAlert(response.data.ToString(), true);
+                }
+            }
         }
 
         private void InicializeInfo()
@@ -78,6 +108,7 @@
             this.txtInfoPoma = FindViewById<TextView>(Resource.Id.txtInfoPoma);
             this.txtInfoFinca = FindViewById<TextView>(Resource.Id.txtInfoFinca);
             this.txtInfoTerminalDestino = FindViewById<TextView>(Resource.Id.txtInfoTerminalDestino);
+            this.txtInfoCara = FindViewById<TextView>(Resource.Id.txtInfoCara);
             this.btnInfoAleatorio = FindViewById<Button>(Resource.Id.btnInfoAleatorio);
             this.btnInfoAleatorio.Click += aleatorioCaraPallet;
         }
@@ -95,6 +126,7 @@
                 if(response.data != null)
                 {
                     var result = JsonConvert.DeserializeObject<InfoPaletResponse>(response.data.ToString());
+                    this.idPallet = result.idPallet;
                     this.txtInfoCarga.Text = result.carga;
                     this.txtInfoCajasPallet.Text = result.cajasPalet.ToString();
                     this.txtInfoPerfilar.Text = result.perfilar ? "SI" : "NO";
@@ -108,6 +140,7 @@
                     this.txtInfoFruta.Text = result.fruta;
                     this.txtInfoPoma.Text = result.poma.ToString();
                     this.txtInfoFinca.Text = result.finca;
+                    this.txtInfoCara.Text = result.caraPallet != 0 ? result.caraPallet.ToString() : "N/A";
                     this.txtInfoTerminalDestino.Text = result.terminalDestino;
                     if (result.perfilar)
                     {
@@ -117,7 +150,7 @@
                     {
                         this.txtInfoPerfilar.SetTextColor(Android.Graphics.Color.Orange);
                     }
-                    var visibleButton = result.perfilar ? Android.Views.ViewStates.Visible : Android.Views.ViewStates.Invisible;
+                    var visibleButton = result.caraPallet != 0 ? Android.Views.ViewStates.Invisible : result.perfilar ? Android.Views.ViewStates.Visible : Android.Views.ViewStates.Invisible;
                     this.btnInfoAleatorio.Visibility = visibleButton;
                     NavigationLoader.HideLoading();
                 }

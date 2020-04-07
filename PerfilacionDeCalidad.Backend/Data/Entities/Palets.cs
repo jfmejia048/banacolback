@@ -11,7 +11,7 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         [Key]
         public int ID { get; set; } 
 
-        public Fincas Finca { get; set; }
+        public Frutas Fruta { get; set; }
 
         public Puertos Puerto { get; set; }
 

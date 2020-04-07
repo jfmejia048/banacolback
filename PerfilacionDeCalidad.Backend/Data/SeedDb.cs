@@ -28,8 +28,8 @@ namespace PerfilacionDeCalidad.Backend.Data
             var Customer = await CheckType("Usuario");
             await CreateVias();
             await CheckTipos();
-            var manager = await CheckUserAsync("1010", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Sebastian", "Builes", "Admin@gmail.com", "301 701 9551", "Calle Luna Calle Sol", true, Admin);
-            var customer = await CheckUserAsync("2020", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Sebastian", "Builes", "Customer@gmail.com", "301 701 9551", "Calle Luna Calle Sol", true, Customer);
+            var manager = await CheckUserAsync("1010", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Sebastian", "Builes", "Admin@gmail.com", "3017019551", "CARRERA-43a-#-1sur-188", true, Admin);
+            var customer = await CheckUserAsync("2020", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Sebastian", "Builes", "Customer@gmail.com", "3017019551", "CALLE-19-#-88-11", true, Customer);
 
         }
 
