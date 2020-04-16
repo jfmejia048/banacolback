@@ -69,6 +69,8 @@
             {
                 if (response.data != null)
                 {
+                    this.btnInfoAleatorio.Visibility = Android.Views.ViewStates.Gone;
+                    this.txtInfoCara.Text = cara.ToString();
                     this.PresentAlert("La cara seleccionada es la número: " + cara, false);
                     NavigationLoader.HideLoading();
                 }

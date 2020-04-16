@@ -41,32 +41,30 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         public object Get()
         {
-            var Pomas = (from Poma in _dataContext.Pomas
-                         join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
-                         join Fruta in _dataContext.Frutas on Poma.Codigo equals Fruta.Poma.Codigo
-                         join Palet in _dataContext.Palets on Fruta.Codigo equals Palet.Fruta.Codigo
-                         join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
-                         join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
-                         join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
-                         join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
+            var Pomas = (from TransportGuides in _dataContext.TransportGuides
+                         join DetailTransportGuide in _dataContext.DetailTransportGuide on TransportGuides.ID equals DetailTransportGuide.TransportGuide.ID
+                         join Pallets in _dataContext.Palets on DetailTransportGuide.ID equals Pallets.DetailTransportGuide.ID
                          select new
                          {
-                             Finca = Finca.FincaName,
-                             TerminalDestino = Puerto.PuertoName,
-                             Poma = Poma.Numero,
-                             Fruta = Fruta.FrutaName,
-                             Buque = Buque.BuqueName,
-                             Llegada = Palet.LlegadaTerminal,
-                             Salida = Palet.SalidaFinca,
-                             Estimado = Palet.Estimado,
-                             LlegadaTerminal = Palet.LlegadaTerminal,
-                             Cajas = Poma.Recibido,
-                             Exportador = Exportador.ExportadorName,
-                             Destino = Destino.DestinoName,
-                             Carga = Palet.Carga,
-                             CodigoDeBarras = Palet.CodigoPalet,
-                             CajasPalet = Palet.NumeroCajas,
-                             Palet.Perfilar
+                             IdPallet = Pallets.ID,
+                             Finca = TransportGuides.Finca.FincaName,
+                             TerminalDestino = TransportGuides.Puerto.PuertoName,
+                             Poma = TransportGuides.Poma.Numero,
+                             Fruta = DetailTransportGuide.Fruta.FrutaName,
+                             Buque = DetailTransportGuide.Buque.BuqueName,
+                             Llegada = TransportGuides.LlegadaTerminal,
+                             Salida = TransportGuides.SalidaFinca,
+                             Estimado = TransportGuides.Estimado,
+                             LlegadaTerminal = TransportGuides.LlegadaTerminal,
+                             Cajas = TransportGuides.Recibido,
+                             Exportador = DetailTransportGuide.Exportador.ExportadorName,
+                             Destino = DetailTransportGuide.Destino.DestinoName,
+                             Carga = Pallets.Carga,
+                             CodigoDeBarras = Pallets.CodigoPalet,
+                             CajasPalet = Pallets.NumeroCajas,
+                             Pallets.Perfilar,
+                             CaraPallet = Pallets.CaraPalet,
+                             IdTransportGuide = TransportGuides.ID
                          }).ToList();
             return Pomas;
         }
@@ -77,35 +75,31 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var Palets = (from Poma in _dataContext.Pomas
-                              join Finca in _dataContext.Fincas on Poma.Codigo equals Finca.Pomas.Codigo
-                              join Fruta in _dataContext.Frutas on Poma.Codigo equals Fruta.Poma.Codigo
-                              join Palet in _dataContext.Palets on Fruta.Codigo equals Palet.Fruta.Codigo
-                              join Puerto in _dataContext.Puertos on Palet.Puerto.Codigo equals Puerto.Codigo
-                              join Buque in _dataContext.Buques on Palet.Buque.Codigo equals Buque.Codigo
-                              join Exportador in _dataContext.Exportadores on Palet.Exportador.Codigo equals Exportador.Codigo
-                              join Destino in _dataContext.Destinos on Palet.Destino.Codigo equals Destino.Codigo
-                              where Palet.CodigoPalet == Codigo.CodigoPalet
+                var Palets = (from TransportGuides in _dataContext.TransportGuides
+                              join DetailTransportGuide in _dataContext.DetailTransportGuide on TransportGuides.ID equals DetailTransportGuide.TransportGuide.ID
+                              join Pallets in _dataContext.Palets on DetailTransportGuide.ID equals Pallets.DetailTransportGuide.ID
+                              where Pallets.CodigoPalet == Codigo.CodigoPalet
                              select new
                              {
-                                 IdPallet  = Palet.ID,
-                                 Finca = Finca.FincaName,
-                                 TerminalDestino = Puerto.PuertoName,
-                                 Poma = Poma.Numero,
-                                 Fruta = Fruta.FrutaName,
-                                 Buque = Buque.BuqueName,
-                                 Llegada = Palet.LlegadaTerminal,
-                                 Salida = Palet.SalidaFinca,
-                                 Estimado = Palet.Estimado,
-                                 LlegadaTerminal = Palet.LlegadaTerminal,
-                                 Cajas = Poma.Recibido,
-                                 Exportador = Exportador.ExportadorName,
-                                 Destino = Destino.DestinoName,
-                                 Carga = Palet.Carga,
-                                 CodigoDeBarras = Palet.CodigoPalet,
-                                 CajasPalet = Palet.NumeroCajas,
-                                 Palet.Perfilar,
-                                 CaraPallet = Palet.CaraPalet
+                                 IdPallet  = Pallets.ID,
+                                 Finca = TransportGuides.Finca.FincaName,
+                                 TerminalDestino = TransportGuides.Puerto.PuertoName,
+                                 Poma = TransportGuides.Poma.Numero,
+                                 Fruta = DetailTransportGuide.Fruta.FrutaName,
+                                 Buque = DetailTransportGuide.Buque.BuqueName,
+                                 Llegada = TransportGuides.LlegadaTerminal,
+                                 Salida = TransportGuides.SalidaFinca,
+                                 Estimado = TransportGuides.Estimado,
+                                 LlegadaTerminal = TransportGuides.LlegadaTerminal,
+                                 Cajas = TransportGuides.Recibido,
+                                 Exportador = DetailTransportGuide.Exportador.ExportadorName,
+                                 Destino = DetailTransportGuide.Destino.DestinoName,
+                                 Carga = Pallets.Carga,
+                                 CodigoDeBarras = Pallets.CodigoPalet,
+                                 CajasPalet = Pallets.NumeroCajas,
+                                 Pallets.Perfilar,
+                                 CaraPallet = Pallets.CaraPalet,
+                                 IdTransportGuide = TransportGuides.ID
                              }).FirstOrDefault();
                 return Ok(new { Data = Palets, Success = true });
             }

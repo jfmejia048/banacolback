@@ -8,6 +8,7 @@ namespace Common.DTO
     {
         public string Fruta { get; set; }
         public string Buque { get; set; }
+        public DateTime FechaCreacion { get; set; }
         public DateTime Llegada { get; set; }
         public DateTime Salida { get; set; }
         public DateTime Estimado { get; set; }

@@ -32,8 +32,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     x.ID,
                     x.Codigo,
-                    x.FincaName,
-                    x.Estado
+                    x.FincaName
                 }).ToList();
                 return Ok(new { Data = Fincas, Success = true });
             }
@@ -45,21 +44,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CreateFinca(List<Fincas> Fincas)
+        public async Task<IActionResult> CreateFinca(Fincas Finca)
         {
             List<Fincas> ListFinca = new List<Fincas>();
             try
             {
-                ListFinca = await Create(Fincas);
+                Fincas F = await Create(Finca);
                 _dataContext.Fincas.AddRange(ListFinca);
-                await _dataContext.SaveChangesAsync();
-                return Ok(new { Data = ListFinca.Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    x.FincaName,
-                    x.Estado
-                }).ToList(), Success = true });
+                return Ok(new { Data = F, Success = true });
             }
             catch(Exception ex)
             {
@@ -67,24 +59,18 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
         }
 
-        public async Task<List<Fincas>> Create(List<Fincas> Fincas)
+        public async Task<Fincas> Create(Fincas Finca)
         {
-            List<Fincas> ListFinca = new List<Fincas>();
-            foreach (var Finca in Fincas)
+            if (!this.ExistFinca(Finca.Codigo))
             {
-                if (!this.ExistFinca(Finca.Codigo))
-                {
-                    Fincas finca = new Fincas();
-                    finca.Pomas = Finca.Pomas;
-                    finca.Codigo = Finca.Codigo;
-                    finca.FincaName = Finca.FincaName;
-                    finca.Estado = true;
-                    ListFinca.Add(finca);
-                }
+                _dataContext.Fincas.Add(Finca);
             }
-            _dataContext.Fincas.AddRange(ListFinca);
+            else
+            {
+                return _dataContext.Fincas.FirstOrDefault(x => x.Codigo == Finca.Codigo);
+            }
             await _dataContext.SaveChangesAsync();
-            return ListFinca;
+            return Finca;
         }
 
         [HttpPost]
@@ -102,38 +88,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         finca.ID,
                         finca.Codigo,
-                        finca.FincaName,
-                        finca.Estado
-                    }, Success = true });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { Data = ex.ToString(), Success = false });
-                }
-            }
-            else
-            {
-                return BadRequest(new { Data = "La finca con codigo " + Finca.Codigo + " no se encuentra en la base de datos.", Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<IActionResult> DeleteFinca(Fincas Finca)
-        {
-            if (_dataContext.Fincas.Any(x => x.Codigo == Finca.Codigo))
-            {
-                var finca = _dataContext.Fincas.First(x => x.Codigo == Finca.Codigo);
-                finca.Estado = !finca.Estado;
-                try
-                {
-                    await _dataContext.SaveChangesAsync();
-                    return Ok(new { Data = new
-                    {
-                        finca.ID,
-                        finca.Codigo,
-                        finca.FincaName,
-                        finca.Estado
+                        finca.FincaName
                     }, Success = true });
                 }
                 catch (Exception ex)

@@ -19,7 +19,7 @@ namespace PerfilacionDeCalidad.PCL.Services
                 var request = JsonConvert.SerializeObject(model);
                 var content = new StringContent(request, Encoding.UTF8, "application/json");
                 var client = new HttpClient();
-                client.BaseAddress = new Uri("http://192.168.1.75:84/api/");
+                client.BaseAddress = new Uri("http://104.42.248.133:81/api/");
                 var response = await client.PostAsync(controller, content);
                 var answer = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
@@ -54,7 +54,7 @@ namespace PerfilacionDeCalidad.PCL.Services
                 var request = JsonConvert.SerializeObject(model);
                 var content = new StringContent(request, Encoding.UTF8, "application/json");
                 var client = new HttpClient();
-                client.BaseAddress = new Uri("http://192.168.1.75:84/api/");
+                client.BaseAddress = new Uri("http://104.42.248.133:81/api/");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await client.PostAsync(controller, content);
                 var answer = await response.Content.ReadAsStringAsync();

@@ -32,9 +32,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     x.ID,
                     x.Codigo,
-                    x.FrutaName,
-                    x.Estado,
-                    x.Poma
+                    x.FrutaName
                 }).ToList();
                 return Ok(new { Data = Frutas, Success = true });
             }
@@ -46,21 +44,12 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CreateFruta([FromBody]List<Frutas> Frutas)
+        public async Task<IActionResult> CreateFruta(Frutas Fruta)
         {
-            List<Frutas> ListFruta = new List<Frutas>();
-
             try
             {
-                ListFruta = await Create(Frutas);
-                return Ok(new { Data = ListFruta.Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    x.FrutaName,
-                    x.Estado,
-                    x.Poma
-                }).ToList(), Success = true });
+                Frutas F = await Create(Fruta);
+                return Ok(new { Data = F, Success = true });
             }
             catch (Exception ex)
             {
@@ -68,24 +57,18 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
         }
 
-        public async Task<List<Frutas>> Create(List<Frutas> Frutas)
+        public async Task<Frutas> Create(Frutas Fruta)
         {
-            List<Frutas> ListFruta = new List<Frutas>();
-            foreach (var Fruta in Frutas)
+            if (!this.ExistFruta(Fruta.Codigo))
             {
-                if (!this.ExistFruta(Fruta.Codigo))
-                {
-                    Frutas F = new Frutas();
-                    F.Poma = Fruta.Poma;
-                    F.Codigo = Fruta.Codigo;
-                    F.FrutaName = Fruta.FrutaName;
-                    F.Estado = true;
-                    ListFruta.Add(F);
-                }
+                _dataContext.Frutas.Add(Fruta);
             }
-            _dataContext.Frutas.AddRange(ListFruta);
+            else
+            {
+                return _dataContext.Frutas.FirstOrDefault(x => x.Codigo == Fruta.Codigo);
+            }
             await _dataContext.SaveChangesAsync();
-            return ListFruta;
+            return Fruta;
         }
 
         [HttpPost]
@@ -103,38 +86,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     {
                         fruta.ID,
                         fruta.Codigo,
-                        fruta.FrutaName,
-                        fruta.Estado
-                    }, Success = true });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { Data = ex.ToString(), Success = false });
-                }
-            }
-            else
-            {
-                return BadRequest(new { Data = "La finca con codigo " + Fruta.Codigo + " no se encuentra en la base de datos.", Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<IActionResult> DeleteFinca(Frutas Fruta)
-        {
-            if (_dataContext.Frutas.Any(x => x.Codigo == Fruta.Codigo))
-            {
-                var fruta = _dataContext.Frutas.First(x => x.Codigo == Fruta.Codigo);
-                fruta.Estado = !fruta.Estado;
-                try
-                {
-                    await _dataContext.SaveChangesAsync();
-                    return Ok(new { Data = new
-                    {
-                        fruta.ID,
-                        fruta.Codigo,
-                        fruta.FrutaName,
-                        fruta.Estado
+                        fruta.FrutaName
                     }, Success = true });
                 }
                 catch (Exception ex)

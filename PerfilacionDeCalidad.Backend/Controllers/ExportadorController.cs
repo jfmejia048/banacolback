@@ -32,8 +32,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     x.ID,
                     x.Codigo,
-                    x.ExportadorName,
-                    x.Estado
+                    x.ExportadorName
                 }).ToList();
                 return Ok(new { Data = Exportador, Success = true });
             }
@@ -45,24 +44,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CreateExportador([FromBody]List<Exportadores> Exportadores)
+        public async Task<IActionResult> CreateExportador(Exportadores Exportador)
         {
             List<Exportadores> ListExportador = new List<Exportadores>();
 
             try
             {
-                ListExportador = await Create(Exportadores);
-                return Ok(new
-                {
-                    Data = ListExportador.Select(x => new
-                    {
-                        x.ID,
-                        x.Codigo,
-                        x.ExportadorName,
-                        x.Estado
-                    }).ToList(),
-                    Success = true
-                });
+                Exportadores E = await Create(Exportador);
+                return Ok(new { Data = E, Success = true });
             }
             catch (Exception ex)
             {
@@ -70,23 +59,18 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
         }
 
-        public async Task<List<Exportadores>> Create(List<Exportadores> Exportadores)
+        public async Task<Exportadores> Create(Exportadores Exportador)
         {
-            List<Exportadores> ListExportadores = new List<Exportadores>();
-            foreach (var Exportador in Exportadores)
+            if (!this.ExistExportador(Exportador.Codigo))
             {
-                if (!this.ExistExportador(Exportador.Codigo))
-                {
-                    Exportadores exportador = new Exportadores();
-                    exportador.Codigo = Exportador.Codigo;
-                    exportador.ExportadorName = Exportador.ExportadorName;
-                    exportador.Estado = true;
-                    ListExportadores.Add(exportador);
-                }
+                _dataContext.Exportadores.Add(Exportador);
             }
-            _dataContext.Exportadores.AddRange(ListExportadores);
+            else
+            {
+                return _dataContext.Exportadores.FirstOrDefault(x => x.Codigo == Exportador.Codigo);
+            }
             await _dataContext.SaveChangesAsync();
-            return ListExportadores;
+            return Exportador;
         }
 
         [HttpPost]
@@ -106,42 +90,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         {
                             exportadores.ID,
                             exportadores.Codigo,
-                            exportadores.ExportadorName,
-                            exportadores.Estado
-                        },
-                        Success = true
-                    });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { Data = ex.ToString(), Success = false });
-                }
-            }
-            else
-            {
-                return BadRequest(new { Data = "El exportador con codigo " + Exportadores.Codigo + " no se encuentra en la base de datos.", Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<IActionResult> DeleteExportador(Exportadores Exportadores)
-        {
-            if (_dataContext.Exportadores.Any(x => x.Codigo == Exportadores.Codigo))
-            {
-                var exportadores = _dataContext.Exportadores.First(x => x.Codigo == Exportadores.Codigo);
-                exportadores.Estado = !exportadores.Estado;
-                try
-                {
-                    await _dataContext.SaveChangesAsync();
-                    return Ok(new
-                    {
-                        Data = new
-                        {
-                            exportadores.ID,
-                            exportadores.Codigo,
-                            exportadores.ExportadorName,
-                            exportadores.Estado
+                            exportadores.ExportadorName
                         },
                         Success = true
                     });

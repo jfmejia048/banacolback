@@ -26,5 +26,6 @@ namespace PerfilacionDeCalidad.PCL.Models
         public int cajasPalet { get; set; }
         public bool perfilar { get; set; }
         public int caraPallet { get; set; }
+        public int idTransportGuide { get; set; }
     }
 }

@@ -136,163 +136,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         _dataContext.SaveChanges();
                     });
 
-                    var poma = _dataContext.Pomas.Where(w => w.ID == palets.IdPoma).FirstOrDefault();
+                    var tg = _dataContext.TransportGuides.Where(w => w.ID == palets.IdTransportGuide).FirstOrDefault();
                     if(palets.Action == 0 || palets.Action == 1)
                     {
-                        poma.Estado = (int)EstadosPoma.Chequeado;
+                        tg.Estado = (int)EstadosPoma.Chequeado;
                     }else if(palets.Action == 2)
                     {
-                        poma.Estado = (int)EstadosPoma.Perfilado;
+                        tg.Estado = (int)EstadosPoma.Perfilado;
                     }
                     _dataContext.SaveChanges();
 
                     tran.Complete();
                 }
                 return Ok(new { Data = "Proceso ejecutado correctamente", Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("GetByPuerto")]
-        public IActionResult GetByPuerto(Puertos Puerto)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Puerto).Where(x => x.Palet.Puerto.Codigo == Puerto.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("GetByBuque")]
-        public IActionResult GetByBuque(Buques Buque)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Buque).Where(x => x.Palet.Buque.Codigo == Buque.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("GetByDestino")]
-        public IActionResult GetByDestino(Destinos Destino)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Destino).Where(x => x.Palet.Destino.Codigo == Destino.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("GetByExportador")]
-        public IActionResult GetByExportador(Exportadores Exportador)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Exportador).Where(x => x.Palet.Exportador.Codigo == Exportador.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("GetByFruta")]
-        public IActionResult GetByFruta(Frutas Fruta)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Fruta).Where(x => x.Palet.Fruta.Codigo == Fruta.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("GetByPoma")]
-        public IActionResult GetByPoma(Pomas Poma)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Include(x => x.Palet.Fruta.Poma).Where(x => x.Palet.Fruta.Poma.Codigo == Poma.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
             }
             catch (Exception ex)
             {

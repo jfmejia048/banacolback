@@ -32,8 +32,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     x.ID,
                     x.Codigo,
-                    x.DestinoName,
-                    x.Estado
+                    x.DestinoName
                 }).ToList();
                 return Ok(new { Data = Destino, Success = true });
             }
@@ -45,24 +44,12 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CreatePuerto([FromBody]List<Destinos> Destino)
+        public async Task<IActionResult> CreatePuerto(Destinos Destino)
         {
-            List<Destinos> ListDestino = new List<Destinos>();
-
             try
             {
-                ListDestino = await Create(Destino);
-                return Ok(new
-                {
-                    Data = ListDestino.Select(x => new
-                    {
-                        x.ID,
-                        x.Codigo,
-                        x.DestinoName,
-                        x.Estado
-                    }).ToList(),
-                    Success = true
-                });
+                Destinos D = await Create(Destino);
+                return Ok(new { Data = D, Success = true });
             }
             catch (Exception ex)
             {
@@ -70,23 +57,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
         }
 
-        public async Task<List<Destinos>> Create(List<Destinos> Destinos)
+        public async Task<Destinos> Create(Destinos Destino)
         {
-            List<Destinos> ListDestino = new List<Destinos>();
-            foreach (var Destino in Destinos)
+            if (!this.ExistDestino(Destino.Codigo))
             {
-                if (!this.ExistDestino(Destino.Codigo))
-                {
-                    Destinos destino = new Destinos();
-                    destino.Codigo = Destino.Codigo;
-                    destino.DestinoName = Destino.DestinoName;
-                    destino.Estado = true;
-                    ListDestino.Add(destino);
-                }
+                _dataContext.Destinos.Add(Destino);
             }
-            _dataContext.Destinos.AddRange(ListDestino);
+            else
+            {
+                return _dataContext.Destinos.FirstOrDefault(x => x.Codigo == Destino.Codigo);
+            }
+
             await _dataContext.SaveChangesAsync();
-            return ListDestino;
+            return Destino;
         }
 
         [HttpPost]
@@ -106,8 +89,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         {
                             destinos.ID,
                             destinos.Codigo,
-                            destinos.DestinoName,
-                            destinos.Estado
+                            destinos.DestinoName
                         },
                         Success = true
                     });
@@ -121,40 +103,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<IActionResult> DeleteDestino(Destinos Destinos)
-        {
-            if (_dataContext.Destinos.Any(x => x.Codigo == Destinos.Codigo))
-            {
-                var Destino = _dataContext.Destinos.First(x => x.Codigo == Destinos.Codigo);
-                Destino.Estado = !Destino.Estado;
-                try
-                {
-                    await _dataContext.SaveChangesAsync();
-                    return Ok(new
-                    {
-                        Data = new
-                        {
-                            Destino.ID,
-                            Destino.Codigo,
-                            Destino.DestinoName,
-                            Destino.Estado
-                        },
-                        Success = true
-                    });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { Data = ex.ToString(), Success = false });
-                }
-            }
-            else
-            {
-                return BadRequest(new { Data = "el destino con codigo " + Destinos.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
 

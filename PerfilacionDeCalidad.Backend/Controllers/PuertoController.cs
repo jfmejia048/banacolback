@@ -32,8 +32,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 {
                     x.ID,
                     x.Codigo,
-                    x.PuertoName,
-                    x.Estado
+                    x.PuertoName
                 }).ToList();
                 return Ok(new { Data = Puertos, Success = true });
             }
@@ -45,24 +44,14 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CreatePuerto([FromBody]List<Puertos> Puertos)
+        public async Task<IActionResult> CreatePuerto(Puertos Puerto)
         {
             List<Puertos> ListPuerto = new List<Puertos>();
 
             try
             {
-                ListPuerto = await Create(Puertos);
-                return Ok(new
-                {
-                    Data = ListPuerto.Select(x => new
-                    {
-                        x.ID,
-                        x.Codigo,
-                        x.PuertoName,
-                        x.Estado
-                    }).ToList(),
-                    Success = true
-                });
+                Puertos P = await Create(Puerto);
+                return Ok(new { Data = P, Success = true });
             }
             catch (Exception ex)
             {
@@ -70,23 +59,19 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
         }
 
-        public async Task<List<Puertos>> Create(List<Puertos> Puertos)
+        public async Task<Puertos> Create(Puertos Puerto)
         {
-            List<Puertos> ListPuerto = new List<Puertos>();
-            foreach (var Puerto in Puertos)
+            if (!this.ExistPuerto(Puerto.Codigo))
             {
-                if (!this.ExistPuerto(Puerto.Codigo))
-                {
-                    Puertos puerto = new Puertos();
-                    puerto.Codigo = Puerto.Codigo;
-                    puerto.PuertoName = Puerto.PuertoName;
-                    puerto.Estado = true;
-                    ListPuerto.Add(puerto);
-                }
+                _dataContext.Puertos.Add(Puerto);
             }
-            _dataContext.Puertos.AddRange(ListPuerto);
+            else
+            {
+                return _dataContext.Puertos.FirstOrDefault(x => x.Codigo == Puerto.Codigo);
+            }
+            
             await _dataContext.SaveChangesAsync();
-            return ListPuerto;
+            return Puerto;
         }
 
         [HttpPost]
@@ -106,8 +91,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         {
                             Puerto.ID,
                             Puerto.Codigo,
-                            Puerto.PuertoName,
-                            Puerto.Estado
+                            Puerto.PuertoName
                         },
                         Success = true
                     });
@@ -122,41 +106,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 return BadRequest(new { Data = "El puerto con codigo " + Puertos.Codigo + " no se encuentra en la base de datos.", Success = false });
             }
         }
-
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<IActionResult> DeletePuerto(Puertos Puertos)
-        {
-            if (_dataContext.Puertos.Any(x => x.Codigo == Puertos.Codigo))
-            {
-                var Puerto = _dataContext.Puertos.First(x => x.Codigo == Puertos.Codigo);
-                Puerto.Estado = !Puerto.Estado;
-                try
-                {
-                    await _dataContext.SaveChangesAsync();
-                    return Ok(new
-                    {
-                        Data = new
-                        {
-                            Puerto.ID,
-                            Puerto.Codigo,
-                            Puerto.PuertoName,
-                            Puerto.Estado
-                        },
-                        Success = true
-                    });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { Data = ex.ToString(), Success = false });
-                }
-            }
-            else
-            {
-                return BadRequest(new { Data = "El Puerto con codigo " + Puertos.Codigo + " no se encuentra en la base de datos.", Success = false });
-            }
-        }
-
 
         public bool ExistPuerto(int id)
         {

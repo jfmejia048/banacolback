@@ -29,53 +29,55 @@ namespace PerfilacionDeCalidad.Backend.Logic
                 StartDate = StartDate.AddDays(-1);
                 EndDate = EndDate.AddDays(-1);
             }
-            var Pomas = (from Poma in _dataContext.Pomas
-                         join Finca in _dataContext.Fincas on Poma.ID equals Finca.Pomas.ID
-                         join Fruta in _dataContext.Frutas on Poma.ID equals Fruta.Poma.ID
-                         join Palets in _dataContext.Palets on Fruta.ID equals Palets.Fruta.ID
-                         join Puerto in _dataContext.Puertos on Palets.Puerto.ID equals Puerto.ID
-                         join Buque in _dataContext.Buques on Palets.Buque.ID equals Buque.ID
-                         join Exportador in _dataContext.Exportadores on Palets.Exportador.ID equals Exportador.ID
-                         join Destino in _dataContext.Destinos on Palets.Destino.ID equals Destino.ID
-                         where Poma.FechaRegistro.ToLocalTime() >= StartDate && Poma.FechaRegistro.ToLocalTime() <= EndDate
+            var Pomas = (from TransportGuides in _dataContext.TransportGuides
+                         join DetailTransportGuide in _dataContext.DetailTransportGuide on TransportGuides.ID equals DetailTransportGuide.TransportGuide.ID
+                         join Pallets in _dataContext.Palets on DetailTransportGuide.ID equals Pallets.DetailTransportGuide.ID
+                         where TransportGuides.FechaRegistro.ToLocalTime() >= StartDate && TransportGuides.FechaRegistro.ToLocalTime() <= EndDate
                          select new
                          {
-                             IdPoma = Poma.ID,
-                             CodigoPalet = Palets.Codigo,
-                             Finca = Finca.FincaName,
-                             TerminalDestino = Puerto.PuertoName,
-                             Poma = Poma.Numero,
-                             EstadoPoma = EnumHelper.GetEnumDescription((EstadosPoma)Poma.Estado),
-                             FechaCreacion = Poma.FechaRegistro.ToLocalTime(),
-                             Fruta,
-                             Buque = Buque.BuqueName,
-                             Llegada = Palets.LlegadaTerminal,
-                             Salida = Palets.SalidaFinca,
-                             Palets.Estimado,
-                             Palets.LlegadaTerminal,
-                             Cajas = Poma.Recibido,
-                             Exportador = Exportador.ExportadorName,
-                             Destino = Destino.DestinoName,
-                             Palets.Carga,
-                             CodigoDeBarras = Palets.CodigoPalet,
-                             idPallet = Palets.ID,
-                             CajasPalet = Palets.NumeroCajas,
-                             Palets.Perfilar
+                             IdTransportGuide = TransportGuides.ID,
+                             IdPoma = TransportGuides.Poma.ID,
+                             CodigoPalet = Pallets.Codigo,
+                             Finca = TransportGuides.Finca.FincaName,
+                             TerminalDestino = TransportGuides.Puerto.PuertoName,
+                             Poma = TransportGuides.Poma.Numero,
+                             EstadoPoma = EnumHelper.GetEnumDescription((EstadosPoma)TransportGuides.Estado),
+                             FechaCreacion = TransportGuides.FechaRegistro.ToLocalTime(),
+                             Fruta = DetailTransportGuide.Fruta.FrutaName,
+                             Buque = DetailTransportGuide.Buque.BuqueName,
+                             Llegada = TransportGuides.LlegadaTerminal,
+                             Salida = TransportGuides.SalidaFinca,
+                             Estimado = TransportGuides.Estimado,
+                             LlegadaTerminal = TransportGuides.LlegadaTerminal,
+                             Cajas = TransportGuides.Recibido,
+                             Exportador = DetailTransportGuide.Exportador.ExportadorName,
+                             Destino = DetailTransportGuide.Destino.DestinoName,
+                             Carga = Pallets.Carga,
+                             CodigoDeBarras = Pallets.CodigoPalet,
+                             idPallet = Pallets.ID,
+                             CajasPalet = Pallets.NumeroCajas,
+                             Pallets.Perfilar
                          }).OrderBy(x => x.FechaCreacion).ToList();
 
             List<TransportGuidesDTO> List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
                 .Select(x => new TransportGuidesDTO
                 {
+                    IdTransportGuide = x.FirstOrDefault().IdTransportGuide,
                     IdPoma = x.FirstOrDefault().IdPoma,
                     Finca = x.FirstOrDefault().Finca,
                     TerminalDestino = x.FirstOrDefault().TerminalDestino,
                     Poma = x.FirstOrDefault().Poma,
                     FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
+                    Llegada = x.FirstOrDefault().Llegada,
+                    Salida = x.FirstOrDefault().Salida,
+                    Estimado = x.FirstOrDefault().Estimado,
+                    LlegadaTerminal = x.FirstOrDefault().LlegadaTerminal,
                     EstadoPoma = x.FirstOrDefault().EstadoPoma,
-                    Frutas = x.GroupBy(g2 => g2.Fruta.Codigo).Select(s2 => new TransportFruitsDTO
+                    Frutas = x.GroupBy(g2 => g2.Fruta).Select(s2 => new TransportFruitsDTO
                     {
-                        Fruta = s2.FirstOrDefault().Fruta.FrutaName,
+                        Fruta = s2.FirstOrDefault().Fruta,
                         Buque = s2.FirstOrDefault().Buque,
+                        FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
                         Llegada = s2.FirstOrDefault().Llegada,
                         Salida = s2.FirstOrDefault().Salida,
                         Estimado = s2.FirstOrDefault().Estimado,
@@ -100,52 +102,54 @@ namespace PerfilacionDeCalidad.Backend.Logic
 
         public List<TransportGuidesDTO> GetData(int tipoEsportar)
         {
-            var Pomas = (from Poma in _dataContext.Pomas
-                         join Finca in _dataContext.Fincas on Poma.ID equals Finca.Pomas.ID
-                         join Fruta in _dataContext.Frutas on Poma.ID equals Fruta.Poma.ID
-                         join Palets in _dataContext.Palets on Fruta.ID equals Palets.Fruta.ID
-                         join Puerto in _dataContext.Puertos on Palets.Puerto.ID equals Puerto.ID
-                         join Buque in _dataContext.Buques on Palets.Buque.ID equals Buque.ID
-                         join Exportador in _dataContext.Exportadores on Palets.Exportador.ID equals Exportador.ID
-                         join Destino in _dataContext.Destinos on Palets.Destino.ID equals Destino.ID
+            var Pomas = (from TransportGuides in _dataContext.TransportGuides
+                         join DetailTransportGuide in _dataContext.DetailTransportGuide on TransportGuides.ID equals DetailTransportGuide.TransportGuide.ID
+                         join Pallets in _dataContext.Palets on DetailTransportGuide.ID equals Pallets.DetailTransportGuide.ID
                          select new
                          {
-                             IdPoma = Poma.ID,
-                             CodigoPalet = Palets.Codigo,
-                             Finca = Finca.FincaName,
-                             TerminalDestino = Puerto.PuertoName,
-                             Poma = Poma.Numero,
-                             EstadoPoma = EnumHelper.GetEnumDescription((EstadosPoma)Poma.Estado),
-                             FechaCreacion = Poma.FechaRegistro.ToLocalTime(),
-                             Fruta = Fruta.FrutaName,
-                             Buque = Buque.BuqueName,
-                             Llegada = Palets.LlegadaTerminal,
-                             Salida = Palets.SalidaFinca,
-                             Estimado = Palets.Estimado,
-                             LlegadaTerminal = Palets.LlegadaTerminal,
-                             Cajas = Poma.Recibido,
-                             Exportador = Exportador.ExportadorName,
-                             Destino = Destino.DestinoName,
-                             Carga = Palets.Carga,
-                             CodigoDeBarras = Palets.CodigoPalet,
-                             idPallet = Palets.ID,
-                             CajasPalet = Palets.NumeroCajas,
-                             Palets.Perfilar
+                             IdTransportGuide = TransportGuides.ID,
+                             IdPoma = TransportGuides.Poma.ID,
+                             CodigoPalet = Pallets.Codigo,
+                             Finca = TransportGuides.Finca.FincaName,
+                             TerminalDestino = TransportGuides.Puerto.PuertoName,
+                             Poma = TransportGuides.Poma.Numero,
+                             EstadoPoma = EnumHelper.GetEnumDescription((EstadosPoma)TransportGuides.Estado),
+                             FechaCreacion = TransportGuides.FechaRegistro.ToLocalTime(),
+                             Fruta = DetailTransportGuide.Fruta.FrutaName,
+                             Buque = DetailTransportGuide.Buque.BuqueName,
+                             Llegada = TransportGuides.LlegadaTerminal,
+                             Salida = TransportGuides.SalidaFinca,
+                             Estimado = TransportGuides.Estimado,
+                             LlegadaTerminal = TransportGuides.LlegadaTerminal,
+                             Cajas = TransportGuides.Recibido,
+                             Exportador = DetailTransportGuide.Exportador.ExportadorName,
+                             Destino = DetailTransportGuide.Destino.DestinoName,
+                             Carga = Pallets.Carga,
+                             CodigoDeBarras = Pallets.CodigoPalet,
+                             idPallet = Pallets.ID,
+                             CajasPalet = Pallets.NumeroCajas,
+                             Pallets.Perfilar
                          }).OrderBy(x => x.FechaCreacion).ToList();
 
             List<TransportGuidesDTO> List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
                 .Select(x => new TransportGuidesDTO
                 {
+                    IdTransportGuide = x.FirstOrDefault().IdTransportGuide,
                     IdPoma = x.FirstOrDefault().IdPoma,
                     Finca = x.FirstOrDefault().Finca,
                     TerminalDestino = x.FirstOrDefault().TerminalDestino,
                     Poma = x.FirstOrDefault().Poma,
                     FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
+                    Llegada = x.FirstOrDefault().Llegada,
+                    Salida = x.FirstOrDefault().Salida,
+                    Estimado = x.FirstOrDefault().Estimado,
+                    LlegadaTerminal = x.FirstOrDefault().LlegadaTerminal,
                     EstadoPoma = x.FirstOrDefault().EstadoPoma,
                     Frutas = x.GroupBy(g2 => g2.Fruta).Select(s2 => new TransportFruitsDTO
                     {
                         Fruta = s2.FirstOrDefault().Fruta,
                         Buque = s2.FirstOrDefault().Buque,
+                        FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
                         Llegada = s2.FirstOrDefault().Llegada,
                         Salida = s2.FirstOrDefault().Salida,
                         Estimado = s2.FirstOrDefault().Estimado,

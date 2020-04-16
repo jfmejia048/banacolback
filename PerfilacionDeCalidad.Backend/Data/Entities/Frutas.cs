@@ -14,9 +14,5 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
 
         [MaxLength(50, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string FrutaName { get; set; }
-
-        public bool Estado { get; set; }
-
-        public Pomas Poma { get; set; }
     }
 }
