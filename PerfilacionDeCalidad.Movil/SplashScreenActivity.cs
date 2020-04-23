@@ -4,7 +4,10 @@
     using Android.App;
     using Android.Content;
     using Android.OS;
+    using Newtonsoft.Json;
+    using PerfilacionDeCalidad.Movil.Enum;
     using PerfilacionDeCalidad.Movil.Helpers;
+    using PerfilacionDeCalidad.PCL.Models;
 
     [Activity(Theme = "@style/MyTheme.Splash", Label = "@string/app_name", MainLauncher = true, NoHistory = true)]
     public class SplashScreenActivity : Activity
@@ -25,13 +28,25 @@
         async void SimulateStartup()
         {
             await Task.Delay(2000); // Simulate a bit of startup work.
+            var user = JsonConvert.DeserializeObject<LoginResponse>(Settings.User);
             if (string.IsNullOrEmpty(Settings.AccessToken))
             {
                 StartActivity(new Intent(Application.Context, typeof(MainActivity)));
             }
             else
             {
-                StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+                if (user.TipoUsuario.ToLower() == "calidad" || user.TipoUsuario.ToLower() == "chequeo")
+                {
+                    if (user.TipoUsuario.ToLower() == "calidad")
+                        Settings.TypeUser = ((int)TipoEscaneo.calidad).ToString();
+                    else
+                        Settings.TypeUser = ((int)TipoEscaneo.chequeo).ToString();
+                    StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+                }
+                else
+                {
+                    StartActivity(new Intent(Application.Context, typeof(SelectedRoleActivity)));
+                }
             }
         }
     }

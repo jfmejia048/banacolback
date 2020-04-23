@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+	android:background="@android:color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+     <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarSelectedRoles"
+		android:minHeight="?attr/actionBarSize"
+		android:background="#007d9a"
+        app:titleTextColor="@android:color/white"
+		android:gravity="left"
+		android:theme="@style/Theme.AppCompat.Light"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+	</android.support.v7.widget.Toolbar>
+	<LinearLayout
+        android:padding="10dp"
+		android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:padding="20dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5">
+            <Button
+               android:id="@+id/btnChequeo"
+               android:textSize="30dp"
+               android:textColor="@android:color/white"
+               android:text="Chequeo"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:background="@drawable/botonchequeoestilo" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:padding="20dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5">
+            <Button
+               android:id="@+id/btnCalidad"
+               android:textSize="30dp"
+               android:textColor="@android:color/white"
+               android:text="Calidad"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:background="@drawable/botoncalidadestilo" />
+        </RelativeLayout>
+	</LinearLayout>
+</LinearLayout>

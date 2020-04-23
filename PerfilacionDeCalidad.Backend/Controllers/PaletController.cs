@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Common.DTO;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "Administrador,Usuario,Calidad,Chequeo", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PaletController : ControllerBase
     {
         private readonly DataContext _dataContext;
@@ -111,14 +112,16 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("GuardarCara")]
-        public IActionResult Perfilar(Palets pallet)
+        public IActionResult Perfilar(GuardarCaraPallet pallet)
         {
             try
             {
-                var Palet = _dataContext.Palets.Where(x => x.ID == pallet.ID).FirstOrDefault();
+                var Palet = _dataContext.Palets.Where(x => x.ID == pallet.Id).FirstOrDefault();
                 if(Palet != null)
                 {
-                    Palet.CaraPalet = pallet.CaraPalet;
+                    Palet.CaraPalet = pallet.Cara;
+                    Palet.UsuarioLectura = pallet.Usuario;
+                    Palet.InspeccionPalet = DateTime.UtcNow;
                     _dataContext.SaveChanges();
                     return Ok(new { Data = Palet, success = true });
                 }

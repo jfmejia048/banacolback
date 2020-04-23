@@ -12,18 +12,25 @@
     using Android.Text;
     using AlertDialog = Android.App.AlertDialog;
     using Android.Views.InputMethods;
+    using PerfilacionDeCalidad.Movil.Enum;
+    using Newtonsoft.Json;
+    using PerfilacionDeCalidad.PCL.Models;
+    using PerfilacionDeCalidad.PCL.Services;
+    using System.Text.RegularExpressions;
 
     [Activity(Label = "HomeActivity", ParentActivity = typeof(HomeActivity))]
     public class HomeActivity : AppCompatActivity
     {
         EditText txtCodebar;
         private InputMethodManager imm;
+        public ApiService apiService;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.home);
-
+            NavigationLoader.init(this);
+            this.apiService = new ApiService();
             var toolbar = FindViewById<Toolbar>(Resource.Id.toolbarTabs);
             SetSupportActionBar(toolbar);
             SupportActionBar.Title = "Perfilación De Calidad";
@@ -42,11 +49,85 @@
         {
             if (!string.IsNullOrEmpty(this.txtCodebar.Text))
             {
-                Intent intent = new Intent(Application.Context, typeof(InfoPalletActivity));
-                intent.PutExtra("Codigo", this.txtCodebar.Text);
-                this.txtCodebar.Text = "";
-                StartActivity(intent);
+                this.GetInfoPallet(this.txtCodebar.Text);
+                //Intent intent = new Intent(Application.Context, typeof(InfoPalletActivity));
+                //intent.PutExtra("Codigo", this.txtCodebar.Text);
+                //this.txtCodebar.Text = "";
+                //StartActivity(intent);
+                //if(int.Parse(Settings.TypeUser) == (int)TipoEscaneo.calidad)
+                //{
+                //    StartActivity(new Intent(Application.Context, typeof(CalidadActivity)));
+                //}
+                //else
+                //{
+                //    StartActivity(new Intent(Application.Context, typeof(ChequeoActivity)));
+                //}
             }
+        }
+
+        private async void GetInfoPallet(string codigo)
+        {
+            string[] cadena = Regex.Split(codigo, @"\r\n?|\n");
+            if(!(cadena.Length > 1))
+            {
+                NavigationLoader.ShowLoading();
+                var data = new
+                {
+                    CodigoPalet = codigo
+                };
+                var response = await this.apiService.Post("Palet/GetByCodigo", data, Settings.AccessToken);
+                if (response.success)
+                {
+                    if (response.data != null)
+                    {
+                        var result = JsonConvert.DeserializeObject<InfoPaletResponse>(response.data.ToString());
+                        if (int.Parse(Settings.TypeUser) == (int)TipoEscaneo.chequeo)
+                        {
+                            if (result.perfilar)
+                            {
+                                StartActivity(new Intent(Application.Context, typeof(PalletCalidadActivity)));
+                            }
+                            else
+                            {
+                                StartActivity(new Intent(Application.Context, typeof(PalletChequeoActivity)));
+                            }
+                        }
+                        else
+                        {
+                            if (result.perfilar)
+                            {
+                                Intent intent = new Intent(Application.Context, typeof(SeleccionCaraActivity));
+                                intent.PutExtra("IdPallet", result.idPallet.ToString());
+                                intent.PutExtra("CaraPallet", result.caraPallet);
+                                StartActivity(intent);
+                            }
+                            else
+                            {
+                                this.PresentAlert("El pallet escaneado no es para calidad.", true);
+                            }
+                        }
+                        NavigationLoader.HideLoading();
+                    }
+                    else
+                    {
+                        NavigationLoader.HideLoading();
+                        this.PresentAlert("No hay información del pallet escaneado. Código del pallet: " + codigo, true);
+                    }
+                }
+                else
+                {
+                    NavigationLoader.HideLoading();
+                    if (response.data == null)
+                    {
+                        this.PresentAlert("Se ha presentado un problema interno", true);
+                    }
+                    else
+                    {
+                        this.PresentAlert(response.data.ToString(), true);
+                    }
+                }
+            }
+            this.txtCodebar.Text = "";
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -75,6 +156,25 @@
             alertVal.SetButton("Aceptar", (c, ev) =>
             {
                 alertVal.Hide();
+            });
+            alertVal.Show();
+        }
+
+        public void PresentAlert(string content, bool backActivity)
+        {
+            var dialogVal = new AlertDialog.Builder(this, Resource.Style.AlertDialog);
+            AlertDialog alertVal = dialogVal.Create();
+            alertVal.SetCanceledOnTouchOutside(false);
+            alertVal.SetTitle("Información");
+            alertVal.SetMessage(content);
+            alertVal.SetButton("Aceptar", (c, ev) =>
+            {
+                alertVal.Hide();
+                //if (backActivity)
+                //{
+                //    StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+                //    Finish();
+                //}
             });
             alertVal.Show();
         }

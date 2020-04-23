@@ -180,6 +180,7 @@
         {
             var dialogVal = new AlertDialog.Builder(this, Resource.Style.AlertDialog);
             AlertDialog alertVal = dialogVal.Create();
+            alertVal.SetCanceledOnTouchOutside(false);
             alertVal.SetTitle("Información");
             alertVal.SetMessage(content);
             alertVal.SetButton("Aceptar", (c, ev) =>

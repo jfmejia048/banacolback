@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarChequeo"
+		android:minHeight="?attr/actionBarSize"
+		android:background="#007d9a"
+        app:titleTextColor="@android:color/white"
+		android:gravity="left"
+		android:theme="@style/Theme.AppCompat.Light"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+	</android.support.v7.widget.Toolbar>
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/txtInfoCalidad"
+            android:text="DIRECTO A CONTENEDOR"
+            android:textSize="48dp"
+            android:textStyle="bold"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="@color/colorPrimary"
+             android:layout_width="match_parent"
+             android:layout_height="380dp"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/txtEscaneoChequeo"
+                android:text="Pallets escaneados: "
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:gravity="center_horizontal"
+                android:textColor="@android:color/black"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/txtEscaneoChequeoValue"
+                android:text="0"
+                android:textSize="20dp"
+                android:gravity="center_horizontal"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

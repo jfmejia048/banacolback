@@ -60,6 +60,11 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enum\CarasPallet.cs" />
+    <Compile Include="Helpers\EnumHelper.cs" />
+    <Compile Include="PalletCalidadActivity.cs" />
+    <Compile Include="PalletChequeoActivity.cs" />
+    <Compile Include="Enum\TipoEscaneo.cs" />
     <Compile Include="Helpers\NavigationLoader.cs" />
     <Compile Include="Helpers\Settings.cs" />
     <Compile Include="HomeActivity.cs" />
@@ -67,6 +72,8 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeleccionCaraActivity.cs" />
+    <Compile Include="SelectedRoleActivity.cs" />
     <Compile Include="SplashScreenActivity.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +223,32 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\border.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\selected_roles.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\BotonChequeoEstilo.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\BotonCalidadEstilo.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\pallet_calidad.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\pallet_chequeo.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\seleccion_cara.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

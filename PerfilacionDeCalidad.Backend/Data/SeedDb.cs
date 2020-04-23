@@ -26,10 +26,12 @@ namespace PerfilacionDeCalidad.Backend.Data
             await CheckRoles();
             var Admin = await CheckType("Administrador");
             var Customer = await CheckType("Usuario");
+            var Chequeo = await CheckType("Chequeo");
+            var Calidad = await CheckType("Calidad");
             await CreateVias();
             await CheckTipos();
             var manager = await CheckUserAsync("1010", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Sebastian", "Builes", "Admin@gmail.com", "3017019551", "CARRERA-43a-#-1sur-188", true, Admin);
-            var customer = await CheckUserAsync("2020", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Sebastian", "Builes", "Customer@gmail.com", "3017019551", "CALLE-19-#-88-11", true, Customer);
+            var customer = await CheckUserAsync("2020", _dataContext.TypeDocuments.First(x => x.Abreviatura == "CC"), "Juan", "Mejia", "Customer@gmail.com", "3017019551", "CALLE-19-#-88-11", true, Customer);
 
         }
 
@@ -67,8 +69,8 @@ namespace PerfilacionDeCalidad.Backend.Data
             if (!_dataContext.TypeDocuments.Any())
             {
                 List<TypeDocument> Tipos = new List<TypeDocument>();
-                Tipos.Add(new TypeDocument { Abreviatura = "CC", Nombre = "Cedula de Ciudadania" });
-                Tipos.Add(new TypeDocument { Abreviatura = "CE", Nombre = "Cedula de Extrangeria" });
+                Tipos.Add(new TypeDocument { Abreviatura = "CC", Nombre = "Cédula de Ciudadanía" });
+                Tipos.Add(new TypeDocument { Abreviatura = "CE", Nombre = "Cédula de Extrangería" });
                 Tipos.Add(new TypeDocument { Abreviatura = "TI", Nombre = "Tarjeta de Identidad" });
                 _dataContext.TypeDocuments.AddRange(Tipos);
                 await _dataContext.SaveChangesAsync();
@@ -79,6 +81,8 @@ namespace PerfilacionDeCalidad.Backend.Data
         {
             await _userHelper.CheckRoleAsync("Administrador");
             await _userHelper.CheckRoleAsync("Usuario");
+            await _userHelper.CheckRoleAsync("Chequeo");
+            await _userHelper.CheckRoleAsync("Calidad");
         }
 
         private async Task<User> CheckUserAsync(string document, TypeDocument TypeDocument, string firstName, string lastName, string email, string phone, string address, bool state, TypeUser role)

@@ -11,7 +11,7 @@
     using PerfilacionDeCalidad.PCL.Models;
     using PerfilacionDeCalidad.Movil.Helpers;
     using Android.Content;
-
+    using PerfilacionDeCalidad.Movil.Enum;
 
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false, NoHistory = true)]
     public class MainActivity : Activity
@@ -59,7 +59,20 @@
             {
                 var result = JsonConvert.DeserializeObject<LoginResponse>(response.data.ToString());
                 Settings.AccessToken = result.Token;
-                StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+                Settings.User = JsonConvert.SerializeObject(result);
+                Settings.CantidadEscaneo = "0";
+                if(result.TipoUsuario.ToLower() == "calidad" || result.TipoUsuario.ToLower() == "chequeo")
+                {
+                    if (result.TipoUsuario.ToLower() == "calidad")
+                        Settings.TypeUser = ((int)TipoEscaneo.calidad).ToString();
+                    else
+                        Settings.TypeUser = ((int)TipoEscaneo.chequeo).ToString();
+                    StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+                }
+                else
+                {
+                    StartActivity(new Intent(Application.Context, typeof(SelectedRoleActivity)));
+                }
                 NavigationLoader.HideLoading();
             }
             else{
