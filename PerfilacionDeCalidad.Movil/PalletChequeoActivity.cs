@@ -19,6 +19,7 @@ namespace PerfilacionDeCalidad.Movil
     public class PalletChequeoActivity : AppCompatActivity
     {
         public TextView txtEscaneoChequeoValue;
+        public Button btnAceptar;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -33,11 +34,26 @@ namespace PerfilacionDeCalidad.Movil
 
         private void InicializeInfo()
         {
+            this.btnAceptar = FindViewById<Button>(Resource.Id.btnAceptarChequeo);
+            this.btnAceptar.Click += Volver;
             this.txtEscaneoChequeoValue = FindViewById<TextView>(Resource.Id.txtEscaneoChequeoValue);
             var cantidad = int.Parse(Settings.CantidadEscaneo);
             cantidad++;
             this.txtEscaneoChequeoValue.Text = cantidad.ToString();
-            Settings.CantidadEscaneo = cantidad.ToString();
+            if(cantidad >= 20)
+            {
+                Settings.CantidadEscaneo = "0";
+            }
+            else
+            {
+                Settings.CantidadEscaneo = cantidad.ToString();
+            }
+        }
+
+        private void Volver(object sender, EventArgs e)
+        {
+            StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+            Finish();
         }
     }
 }

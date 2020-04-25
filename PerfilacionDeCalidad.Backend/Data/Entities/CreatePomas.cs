@@ -12,9 +12,12 @@
         public DateTime LlegadaCamion { get; set; }
         public DateTime SalidaFinca { get; set; }
         public DateTime Estimado { get; set; }
-        public DateTime LlegadaTerminal { get; set; }
+        public DateTime? LlegadaTerminal { get; set; }
         public Fincas Finca { get; set; }
         public Puertos Puerto { get; set; }
+        public Destinos Destino { get; set; }
+        public Buques Buque { get; set; }
+        public Exportadores Exportador { get; set; }
         public List<DetailPoma> DetailPoma { get; set; }
     }
 }

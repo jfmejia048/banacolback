@@ -25,9 +25,9 @@ namespace PerfilacionDeCalidad.Backend.Data
 
         public DbSet<Frutas> Frutas { get; set; }
 
-        public DbSet<Palets> Palets { get; set; }
+        public DbSet<Pallets> Palets { get; set; }
 
-        public DbSet<Pomas> Pomas { get; set; }
+        public DbSet<Vehiculos> Pomas { get; set; }
 
         public DbSet<Puertos> Puertos { get; set; }
 
@@ -45,14 +45,15 @@ namespace PerfilacionDeCalidad.Backend.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<User>().HasIndex(x => x.Document).IsUnique();
-            builder.Entity<Pomas>().HasIndex(x => x.Codigo).IsUnique();
+            builder.Entity<Vehiculos>().HasIndex(x => x.Placa).IsUnique();
             builder.Entity<Fincas>().HasIndex(x => x.Codigo).IsUnique();
             builder.Entity<Puertos>().HasIndex(x => x.Codigo).IsUnique();
             builder.Entity<Frutas>().HasIndex(x => x.Codigo).IsUnique();
             builder.Entity<Buques>().HasIndex(x => x.Codigo).IsUnique();
             builder.Entity<Destinos>().HasIndex(x => x.Codigo).IsUnique();
             builder.Entity<Exportadores>().HasIndex(x => x.Codigo).IsUnique();
-            builder.Entity<Palets>().HasIndex(x => x.Codigo).IsUnique();
+            builder.Entity<TransportGuide>().HasIndex(x => x.Numero).IsUnique();
+            builder.Entity<TransportGuide>().Property(x => x.LlegadaTerminal).HasDefaultValue(null);
             base.OnModelCreating(builder);
         }
     }

@@ -50,16 +50,16 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                              IdPallet = Pallets.ID,
                              Finca = TransportGuides.Finca.FincaName,
                              TerminalDestino = TransportGuides.Puerto.PuertoName,
-                             Poma = TransportGuides.Poma.Numero,
+                             Poma = TransportGuides.Numero,
                              Fruta = DetailTransportGuide.Fruta.FrutaName,
-                             Buque = DetailTransportGuide.Buque.BuqueName,
+                             Buque = TransportGuides.Buque.BuqueName,
                              Llegada = TransportGuides.LlegadaTerminal,
                              Salida = TransportGuides.SalidaFinca,
                              Estimado = TransportGuides.Estimado,
                              LlegadaTerminal = TransportGuides.LlegadaTerminal,
                              Cajas = TransportGuides.Recibido,
-                             Exportador = DetailTransportGuide.Exportador.ExportadorName,
-                             Destino = DetailTransportGuide.Destino.DestinoName,
+                             Exportador = TransportGuides.Exportador.ExportadorName,
+                             Destino = TransportGuides.Destino.DestinoName,
                              Carga = Pallets.Carga,
                              CodigoDeBarras = Pallets.CodigoPalet,
                              CajasPalet = Pallets.NumeroCajas,
@@ -72,10 +72,12 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
         [HttpPost]
         [Route("GetByCodigo")]
-        public IActionResult GetPaletByCodigo(Palets Codigo)
+        public IActionResult GetPaletByCodigo(Pallets Codigo)
         {
             try
             {
+                var pallet = _dataContext.Palets.Where(x => x.CodigoPalet == Codigo.CodigoPalet).FirstOrDefault();
+                pallet.LecturaPalet = DateTime.UtcNow;
                 var Palets = (from TransportGuides in _dataContext.TransportGuides
                               join DetailTransportGuide in _dataContext.DetailTransportGuide on TransportGuides.ID equals DetailTransportGuide.TransportGuide.ID
                               join Pallets in _dataContext.Palets on DetailTransportGuide.ID equals Pallets.DetailTransportGuide.ID
@@ -85,16 +87,16 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                                  IdPallet  = Pallets.ID,
                                  Finca = TransportGuides.Finca.FincaName,
                                  TerminalDestino = TransportGuides.Puerto.PuertoName,
-                                 Poma = TransportGuides.Poma.Numero,
+                                 Poma = TransportGuides.Numero,
                                  Fruta = DetailTransportGuide.Fruta.FrutaName,
-                                 Buque = DetailTransportGuide.Buque.BuqueName,
-                                 Llegada = TransportGuides.LlegadaTerminal,
+                                 Buque = TransportGuides.Buque.BuqueName,
+                                 Llegada = TransportGuides.LlegadaCamion,
                                  Salida = TransportGuides.SalidaFinca,
                                  Estimado = TransportGuides.Estimado,
                                  LlegadaTerminal = TransportGuides.LlegadaTerminal,
                                  Cajas = TransportGuides.Recibido,
-                                 Exportador = DetailTransportGuide.Exportador.ExportadorName,
-                                 Destino = DetailTransportGuide.Destino.DestinoName,
+                                 Exportador = TransportGuides.Exportador.ExportadorName,
+                                 Destino = TransportGuides.Destino.DestinoName,
                                  Carga = Pallets.Carga,
                                  CodigoDeBarras = Pallets.CodigoPalet,
                                  CajasPalet = Pallets.NumeroCajas,
@@ -120,7 +122,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 if(Palet != null)
                 {
                     Palet.CaraPalet = pallet.Cara;
-                    Palet.UsuarioLectura = pallet.Usuario;
+                    Palet.UsuarioInspeccion = pallet.Usuario;
                     Palet.InspeccionPalet = DateTime.UtcNow;
                     _dataContext.SaveChanges();
                     return Ok(new { Data = Palet, success = true });

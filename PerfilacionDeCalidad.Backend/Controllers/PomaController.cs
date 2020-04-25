@@ -53,7 +53,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
             List.ToList().ForEach(x =>
             {
-                List<int> palets = x.Frutas.FirstOrDefault().Pallets.Select(s => s.IdPallet).ToList();
+                List<int> palets = x.Frutas.Select(s => s.IdPallet).ToList();
                 if(!_dataContext.Tracking.Where(a => palets.Contains(a.Palet.ID)).Any())
                 {
                     retList.Add(x);
@@ -67,7 +67,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Create")]
         public async Task<IActionResult> CreatePoma([FromBody]List<CreatePomas> Pomas)
         {
-            List<Pomas> ListPoma = new List<Pomas>();
+            List<Vehiculos> ListPoma = new List<Vehiculos>();
             try {
                 ListPoma = await CreateMasivo(Pomas);
                 return Ok(new { Data = ListPoma, Success = true });
@@ -78,21 +78,21 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
         }
 
-        public async Task<Pomas> Create(Pomas Poma)
+        public async Task<Vehiculos> Create(Vehiculos Vehiculo)
         {
-            if (!this.ExistPoma(Poma.Codigo))
+            if (!this.ExistPoma(Vehiculo.Placa))
             {
-                _dataContext.Pomas.Add(Poma);
+                _dataContext.Pomas.Add(Vehiculo);
             }
             else
             {
-                return _dataContext.Pomas.FirstOrDefault(x => x.Codigo == Poma.Codigo);
+                return _dataContext.Pomas.FirstOrDefault(x => x.Placa.ToLower() == Vehiculo.Placa.ToLower());
             }
             await _dataContext.SaveChangesAsync();
-            return Poma;
+            return Vehiculo;
         }
 
-        public async Task<List<Pomas>> CreateMasivo(List<CreatePomas> Pomas)
+        public async Task<List<Vehiculos>> CreateMasivo(List<CreatePomas> Pomas)
         {
             ExportadorController exportadorController = new ExportadorController(_dataContext);
             PuertoController puertoController = new PuertoController(_dataContext);
@@ -101,17 +101,15 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             FrutasController frutasController = new FrutasController(_dataContext);
             FincaController fincaController = new FincaController(_dataContext);
             PaletController paletController = new PaletController(_dataContext);
-            List<Pomas> ListPoma = new List<Pomas>();
+            List<Vehiculos> ListPoma = new List<Vehiculos>();
             foreach (var Poma in Pomas)
             {
                 try
                 {
-                    Pomas PomaObj = new Pomas();
-                    Pomas P = new Pomas();
-                    P.Codigo = Poma.Codigo;
-                    P.Numero = Poma.Numero;
-                    P.Placa = Poma.Placa;
-                    PomaObj = await this.Create(P);
+                    Vehiculos Vehiculo = new Vehiculos();
+                    Vehiculos V = new Vehiculos();
+                    V.Placa = Poma.Placa;
+                    Vehiculo = await this.Create(V);
 
                     Fincas Finca = new Fincas();
                     Fincas F = new Fincas();
@@ -126,7 +124,27 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     PU.PuertoName = Poma.Puerto.PuertoName;
                     Puerto = await puertoController.Create(PU);
 
+                    Destinos Destino = new Destinos();
+                    Destinos D = new Destinos();
+                    D.Codigo = Poma.Destino.Codigo;
+                    D.DestinoName = Poma.Destino.DestinoName;
+                    Destino = await destinoController.Create(D);
+
+                    Buques Buque = new Buques();
+                    Buques B = new Buques();
+                    B.Codigo = Poma.Buque.Codigo;
+                    B.BuqueName = Poma.Buque.BuqueName;
+                    Buque = await buqueController.Create(B);
+
+                    Exportadores Exportador = new Exportadores();
+                    Exportadores E = new Exportadores();
+                    E.Codigo = Poma.Exportador.Codigo;
+                    E.ExportadorName = Poma.Exportador.ExportadorName;
+                    Exportador = await exportadorController.Create(E);
+
                     TransportGuide TransportGuide = new TransportGuide();
+                    TransportGuide.Vehiculo = Vehiculo;
+                    TransportGuide.Numero = Poma.Numero;
                     TransportGuide.Estado = (int)EstadosPoma.NoChequeado;
                     TransportGuide.FechaRegistro = DateTime.UtcNow;
                     TransportGuide.Recibido = false;
@@ -134,9 +152,12 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     TransportGuide.SalidaFinca = Poma.SalidaFinca;
                     TransportGuide.Estimado = Poma.Estimado;
                     TransportGuide.LlegadaTerminal = Poma.LlegadaTerminal;
-                    TransportGuide.Poma = PomaObj;
                     TransportGuide.Finca = Finca;
                     TransportGuide.Puerto = Puerto;
+                    TransportGuide.Buque = Buque;
+                    TransportGuide.Destino = Destino;
+                    TransportGuide.Exportador = Exportador;
+
                     _dataContext.TransportGuides.Add(TransportGuide);
                     await _dataContext.SaveChangesAsync();
 
@@ -148,50 +169,26 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         FR.FrutaName = detail.Frutas.FrutaName;
                         Fruta = await frutasController.Create(FR);
 
-                        Destinos Destino = new Destinos();
-                        Destinos D = new Destinos();
-                        D.Codigo = detail.Destino.Codigo;
-                        D.DestinoName = detail.Destino.DestinoName;
-                        Destino = await destinoController.Create(D);
-
-                        Buques Buque = new Buques();
-                        Buques B = new Buques();
-                        B.Codigo = detail.Buque.Codigo;
-                        B.BuqueName = detail.Buque.BuqueName;
-                        Buque = await buqueController.Create(B);
-
-                        Exportadores Exportador = new Exportadores();
-                        Exportadores E = new Exportadores();
-                        E.Codigo = detail.Exportador.Codigo;
-                        E.ExportadorName = detail.Exportador.ExportadorName;
-                        Exportador = await exportadorController.Create(E);
-
                         DetailTransportGuide DetailTG = new DetailTransportGuide();
                         DetailTG.TransportGuide = TransportGuide;
                         DetailTG.Fruta = Fruta;
-                        DetailTG.Destino = Destino;
-                        DetailTG.Buque = Buque;
-                        DetailTG.Exportador = Exportador;
                         _dataContext.DetailTransportGuide.Add(DetailTG);
                         await _dataContext.SaveChangesAsync();
 
                         foreach (var palet in detail.Palets)
                         {
-                            if (!_dataContext.Palets.Any(x => x.Codigo == palet.Codigo))
-                            {
-                                Palets Palet = new Palets();
-                                Palet.Codigo = palet.Codigo;
-                                Palet.CodigoPalet = palet.CodigoPalet;
-                                Palet.LecturaPalet = new DateTime();
-                                Palet.UsuarioLectura = "";
-                                Palet.InspeccionPalet = new DateTime();
-                                Palet.CaraPalet = palet.CaraPalet;
-                                Palet.NumeroCajas = palet.NumeroCajas;
-                                Palet.Carga = palet.Carga;
-                                Palet.Perfilar = false;
-                                Palet.DetailTransportGuide = DetailTG;
-                                _dataContext.Palets.Add(Palet);
-                            }
+                            Pallets Palet = new Pallets();
+                            Palet.CodigoPalet = palet.CodigoPalet;
+                            Palet.LecturaPalet = new DateTime();
+                            Palet.UsuarioInspeccion = "";
+                            Palet.InspeccionPalet = new DateTime();
+                            Palet.CaraPalet = palet.CaraPalet;
+                            Palet.NumeroCajas = palet.NumeroCajas;
+                            Palet.Carga = palet.Carga;
+                            Palet.Tipo = palet.Tipo;
+                            Palet.Perfilar = false;
+                            Palet.DetailTransportGuide = DetailTG;
+                            _dataContext.Palets.Add(Palet);
                         }
                     }
                 }
@@ -213,34 +210,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             return ListPoma;
         }
 
-        [HttpPost]
-        [Route("Edit")]
-        public async Task<IActionResult> EditPoma(Pomas Poma)
+        public bool ExistPoma(string placa)
         {
-            if (_dataContext.Pomas.Any(x => x.Codigo == Poma.ID))
-            {
-                var poma = _dataContext.Pomas.First(x => x.Codigo == Poma.ID);
-                poma.Numero = Poma.Numero;
-                poma.Placa = Poma.Placa;
-                try
-                {
-                    await _dataContext.SaveChangesAsync();
-                    return Ok(new { Data = poma, Success = true });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { Data = ex.ToString(), Success = false });
-                }
-            }
-            else
-            {
-                return BadRequest(new { Data = "La Poma con codigo " + Poma.ID + " no se encuentra en la base de datos.", Success = false });
-            }
-        }
-
-        public bool ExistPoma(int id)
-        {
-            return _dataContext.Pomas.Any(x => x.Codigo == id);
+            return _dataContext.Pomas.Any(x => x.Placa.ToLower() == placa.ToLower());
         }
 
         [HttpPost]
@@ -249,13 +221,22 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         {
             try
             {
-                var result = _dataContext.TransportGuides.Where(x => x.ID == TG.ID).FirstOrDefault();
+                var result = _dataContext.TransportGuides.Where(x => x.Numero == TG.Numero).FirstOrDefault();
                 if(result == null)
                 {
                     return NotFound();
                 }
                 result.Recibido = true;
+                result.LlegadaTerminal = DateTime.UtcNow;
                 await _dataContext.SaveChangesAsync();
+                try
+                {
+                    await _NotificationHubContext.Clients.All.BroadcastMessage(Get());
+                }
+                catch (Exception ex)
+                {
+                    return Ok(new { Data = "Editado correctamente", Success = true });
+                }
                 return Ok(new { Data = "Editado correctamente", Success = true });
             }
             catch (Exception ex)

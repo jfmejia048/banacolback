@@ -17,7 +17,7 @@ namespace PerfilacionDeCalidad.PCL.Models
         public DateTime llegada { get; set; }
         public DateTime salida { get; set; }
         public DateTime estimado { get; set; }
-        public DateTime llegadaTerminal { get; set; }
+        public DateTime? llegadaTerminal { get; set; }
         public bool cajas { get; set; }
         public string exportador { get; set; }
         public string destino { get; set; }

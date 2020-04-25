@@ -33,7 +33,7 @@ namespace PerfilacionDeCalidad.Backend.Logic
             ws = this.CreateHeader(ws);
 
             PomasLogic pomasLogic = new PomasLogic(this._dataContext);
-            var result = pomasLogic.GetData(parameters.TipoExportar);
+            var result = pomasLogic.GetDataExcel(parameters.TipoExportar);
             result = pomasLogic.GetFilter(result, parameters);
             var PalletForFruits = result.Select(x => new { PalletsByFruits = x.Frutas.Select(x2 => x2.Pallets.Count).ToList() }).ToList();
             int index1 = 2;
@@ -73,11 +73,11 @@ namespace PerfilacionDeCalidad.Backend.Logic
                     ws.Cell("H" + index2.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Cell("H" + index2.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     ws.Range("H" + index2.ToString() + ":I" + (index2 + x2.Pallets.Count() - 1).ToString()).Column(1).Merge();
-                    ws.Cell("I" + index2.ToString()).Value = "'" + x2.LlegadaTerminal.ToString("HH:mm tt");
+                    ws.Cell("I" + index2.ToString()).Value = "'" + (x2.LlegadaTerminal == null ? "" : ((DateTime)x2.LlegadaTerminal).ToString("HH:mm tt"));
                     ws.Cell("I" + index2.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Cell("I" + index2.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     ws.Range("I" + index2.ToString() + ":J" + (index2 + x2.Pallets.Count() - 1).ToString()).Column(1).Merge();
-                    if (x2.LlegadaTerminal > x2.Estimado)
+                    if (x2.LlegadaTerminal != null && x2.LlegadaTerminal > x2.Estimado)
                     {
                         ws.Range("I" + index2.ToString() + ":I" + (index2 + x2.Pallets.Count() - 1).ToString()).Style.Fill.BackgroundColor = XLColor.Red;
                     }

@@ -138,7 +138,7 @@
                     this.txtInfoHLlegadaCamion.Text = result.llegada.ToString("h:mm tt");
                     this.txtInfoHSalidaFinca.Text = result.salida.ToString("h:mm tt");
                     this.txtInfoHEstimada.Text = result.estimado.ToString("h:mm tt");
-                    this.txtInfoHLlegadaTerminal.Text = result.llegadaTerminal.ToString("h:mm tt");
+                    this.txtInfoHLlegadaTerminal.Text = (result.llegadaTerminal == null ? "" : ((DateTime)result.llegadaTerminal).ToString("h:mm tt"));
                     this.txtInfoFruta.Text = result.fruta;
                     this.txtInfoPoma.Text = result.poma.ToString();
                     this.txtInfoFinca.Text = result.finca;

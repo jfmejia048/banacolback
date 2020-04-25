@@ -38,7 +38,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             {
                 var Trackings = _dataContext.Tracking.Include(x => x.Palet).Select(x => new
                 {
-                    x.Codigo,
                     x.Palet,
                     x.RegisterDate,
                     x.Punto,
@@ -73,31 +72,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         }
 
         [HttpPost]
-        [Route("GetByPalet")]
-        public IActionResult GetByPalet(Palets Palet)
-        {
-            try
-            {
-                var Trackings = _dataContext.Tracking.Include(x => x.Palet).Where(x => x.Palet.Codigo == Palet.Codigo).Select(x => new
-                {
-                    x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
-                    x.RegisterDate,
-                    x.Punto,
-                    x.Localizacion,
-                    x.Evento
-                }).ToList();
-                return Ok(new { Data = Trackings, Success = true });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Data = ex.ToString(), Success = false });
-            }
-        }
-
-
-        [HttpPost]
         [Route("SaveTracking")]
         public IActionResult SaveTracking(PerfilarPaletListDTO palets)
         {
@@ -110,7 +84,6 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         palet.Perfilar = true;
                         var tracking = new Tracking
                         {
-                            Codigo = x.codigoPalet,
                             Palet = palet,
                             RegisterDate = DateTime.UtcNow,
                             Localizacion = "",
@@ -123,9 +96,9 @@ namespace PerfilacionDeCalidad.Backend.Controllers
 
                     palets.NoPerfilar.ForEach(x => {
                         var palet = _dataContext.Palets.Where(w => w.ID == x.idPallet).FirstOrDefault();
+                        palet.Perfilar = false;
                         var tracking = new Tracking
                         {
-                            Codigo = x.codigoPalet,
                             Palet = palet,
                             RegisterDate = DateTime.UtcNow,
                             Localizacion = "",
@@ -167,8 +140,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 var Traking = ListTracking.Select(x => new
                 {
                     x.ID,
-                    x.Codigo,
-                    CodigoPalet = x.Palet.Codigo,
+                    CodigoPalet = x.Palet.CodigoPalet,
                     x.RegisterDate,
                     x.Punto,
                     x.Localizacion,
@@ -187,31 +159,22 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             List<Tracking> ListTracking = new List<Tracking>();
             foreach (var Tracking in Trackings)
             {
-                var Palet = _dataContext.Palets.FirstOrDefault(x => x.Codigo == Tracking.Palet.Codigo);
+                var Palet = _dataContext.Palets.FirstOrDefault(x => x.CodigoPalet == Tracking.Palet.CodigoPalet);
                 if (Palet != null)
                 {
-                    if (!this.ExistsTracking(Tracking.Codigo))
-                    {
-                        Tracking tracking = new Tracking();
-                        tracking.ID = Tracking.ID;
-                        tracking.Codigo = Tracking.Codigo;
-                        tracking.RegisterDate = Tracking.RegisterDate;
-                        tracking.Palet = Palet;
-                        tracking.Punto = Tracking.Punto;
-                        tracking.Localizacion = Tracking.Localizacion;
-                        tracking.Evento = Tracking.Evento;
-                        ListTracking.Add(tracking);
-                    }
+                    Tracking tracking = new Tracking();
+                    tracking.ID = Tracking.ID;
+                    tracking.RegisterDate = Tracking.RegisterDate;
+                    tracking.Palet = Palet;
+                    tracking.Punto = Tracking.Punto;
+                    tracking.Localizacion = Tracking.Localizacion;
+                    tracking.Evento = Tracking.Evento;
+                    ListTracking.Add(tracking);
                 }
             }
             _dataContext.Tracking.AddRange(ListTracking);
             await _dataContext.SaveChangesAsync();
             return ListTracking;
-        }
-
-        public bool ExistsTracking(int id)
-        {
-            return _dataContext.Tracking.Any(x => x.Codigo == id);
         }
     }
 }

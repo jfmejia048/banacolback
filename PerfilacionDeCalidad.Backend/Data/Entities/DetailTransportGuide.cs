@@ -12,8 +12,5 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         public int ID { get; set; }
         public TransportGuide TransportGuide { get; set; }
         public Frutas Fruta { get; set; }
-        public Destinos Destino { get; set; }
-        public Buques Buque { get; set; }
-        public Exportadores Exportador { get; set; }
     }
 }

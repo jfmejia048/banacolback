@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/white"
@@ -17,18 +17,18 @@
 	</android.support.v7.widget.Toolbar>
     <LinearLayout
         android:orientation="vertical"
-        android:padding="10dp"
+        android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
             android:id="@+id/txtInfoCalidad"
             android:text="DIRECTO A CONTENEDOR"
-            android:textSize="48dp"
+            android:textSize="50dp"
             android:textStyle="bold"
             android:gravity="center_vertical|center_horizontal"
             android:textColor="@color/colorPrimary"
              android:layout_width="match_parent"
-             android:layout_height="380dp"/>
+             android:layout_height="320dp"/>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
@@ -51,6 +51,21 @@
                 android:textColor="@android:color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="50dp"
+            android:paddingLeft="100dp"
+            android:paddingRight="100dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btnAceptarChequeo"
+                android:textSize="15dp"
+                android:textColor="@android:color/white"
+                android:text="Aceptar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/buttonloginstyle" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
