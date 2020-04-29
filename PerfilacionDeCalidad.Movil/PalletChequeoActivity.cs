@@ -52,7 +52,7 @@ namespace PerfilacionDeCalidad.Movil
 
         private void Volver(object sender, EventArgs e)
         {
-            StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+            this.OnBackPressed();
             Finish();
         }
     }

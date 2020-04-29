@@ -101,7 +101,7 @@ namespace PerfilacionDeCalidad.Movil
                 alertVal.Hide();
                 if (backActivity)
                 {
-                    StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
+                    this.OnBackPressed();
                     Finish();
                 }
             });

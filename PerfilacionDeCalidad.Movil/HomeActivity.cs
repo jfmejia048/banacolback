@@ -103,7 +103,7 @@
                             }
                             else
                             {
-                                this.PresentAlert("El pallet escaneado no es para calidad.", true);
+                                this.PresentAlert("El pallet escaneado no es para calidad.");
                             }
                         }
                         NavigationLoader.HideLoading();
@@ -111,7 +111,7 @@
                     else
                     {
                         NavigationLoader.HideLoading();
-                        this.PresentAlert("No hay información del pallet escaneado. Código del pallet: " + codigo, true);
+                        this.PresentAlert("No hay información del pallet escaneado. Código del pallet: " + codigo);
                     }
                 }
                 else
@@ -119,11 +119,11 @@
                     NavigationLoader.HideLoading();
                     if (response.data == null)
                     {
-                        this.PresentAlert("Se ha presentado un problema interno", true);
+                        this.PresentAlert("Se ha presentado un problema interno");
                     }
                     else
                     {
-                        this.PresentAlert(response.data.ToString(), true);
+                        this.PresentAlert(response.data.ToString());
                     }
                 }
             }
@@ -160,23 +160,17 @@
             alertVal.Show();
         }
 
-        public void PresentAlert(string content, bool backActivity)
+        public override void OnBackPressed()
         {
-            var dialogVal = new AlertDialog.Builder(this, Resource.Style.AlertDialog);
-            AlertDialog alertVal = dialogVal.Create();
-            alertVal.SetCanceledOnTouchOutside(false);
-            alertVal.SetTitle("Información");
-            alertVal.SetMessage(content);
-            alertVal.SetButton("Aceptar", (c, ev) =>
+            base.OnBackPressed();
+            if (int.Parse(Settings.TypeUser) == (int)TipoEscaneo.chequeo || int.Parse(Settings.TypeUser) == (int)TipoEscaneo.calidad)
             {
-                alertVal.Hide();
-                //if (backActivity)
-                //{
-                //    StartActivity(new Intent(Application.Context, typeof(HomeActivity)));
-                //    Finish();
-                //}
-            });
-            alertVal.Show();
+                this.Finish();
+            }
+            else
+            {
+                StartActivity(new Intent(Application.Context, typeof(SelectedRoleActivity)));
+            }
         }
     }
 }

@@ -77,7 +77,11 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             try
             {
                 var pallet = _dataContext.Palets.Where(x => x.CodigoPalet == Codigo.CodigoPalet).FirstOrDefault();
-                pallet.LecturaPalet = DateTime.UtcNow;
+                if(pallet != null)
+                {
+                    pallet.LecturaPalet = DateTime.UtcNow;
+                    _dataContext.SaveChanges();
+                }
                 var Palets = (from TransportGuides in _dataContext.TransportGuides
                               join DetailTransportGuide in _dataContext.DetailTransportGuide on TransportGuides.ID equals DetailTransportGuide.TransportGuide.ID
                               join Pallets in _dataContext.Palets on DetailTransportGuide.ID equals Pallets.DetailTransportGuide.ID
