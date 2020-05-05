@@ -148,10 +148,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     TransportGuide.Estado = (int)EstadosPoma.NoChequeado;
                     TransportGuide.FechaRegistro = DateTime.UtcNow;
                     TransportGuide.Recibido = false;
-                    TransportGuide.LlegadaCamion = Poma.LlegadaCamion;
-                    TransportGuide.SalidaFinca = Poma.SalidaFinca;
-                    TransportGuide.Estimado = Poma.Estimado;
-                    TransportGuide.LlegadaTerminal = Poma.LlegadaTerminal;
+                    TransportGuide.LlegadaCamion = Poma.LlegadaCamion.ToUniversalTime();
+                    TransportGuide.SalidaFinca = Poma.SalidaFinca.ToUniversalTime();
+                    TransportGuide.Estimado = Poma.Estimado.ToUniversalTime();
+                    TransportGuide.LlegadaTerminal = null;
                     TransportGuide.Finca = Finca;
                     TransportGuide.Puerto = Puerto;
                     TransportGuide.Buque = Buque;
@@ -179,9 +179,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         {
                             Pallets Palet = new Pallets();
                             Palet.CodigoPalet = palet.CodigoPalet;
-                            Palet.LecturaPalet = new DateTime();
+                            Palet.UsuarioLectura = "";
+                            Palet.LecturaPalet = DateTime.UtcNow;
                             Palet.UsuarioInspeccion = "";
-                            Palet.InspeccionPalet = new DateTime();
+                            Palet.InspeccionPalet = DateTime.UtcNow;
                             Palet.CaraPalet = palet.CaraPalet;
                             Palet.NumeroCajas = palet.NumeroCajas;
                             Palet.Carga = palet.Carga;

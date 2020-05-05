@@ -51,6 +51,18 @@ namespace PerfilacionDeCalidad.Backend.Logic
                         ws.Cell("Q" + index3.ToString()).Value = x3.Perfilar ? "SI" : "NO";
                         ws.Cell("Q" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws.Cell("Q" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        ws.Cell("R" + index3.ToString()).Value = x3.UsuarioLectura;
+                        ws.Cell("R" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Cell("R" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        ws.Cell("S" + index3.ToString()).Value = x3.HoraLectura.ToString("yyyy-MM-dd HH:mm tt");
+                        ws.Cell("S" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Cell("S" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        ws.Cell("T" + index3.ToString()).Value = x3.Perfilar ? x3.UsuarioInspeccion : "N/A";
+                        ws.Cell("T" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Cell("T" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        ws.Cell("U" + index3.ToString()).Value = x3.Perfilar ? x3.HoraInspeccion.ToString("yyyy-MM-dd HH:mm tt") : "N/A";
+                        ws.Cell("U" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Cell("U" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                         index3++;
                     });
                     ws.Cell("D" + index2.ToString()).Value = x2.Fruta;
@@ -133,11 +145,11 @@ namespace PerfilacionDeCalidad.Backend.Logic
 
         public IXLWorksheet CreateHeader(IXLWorksheet ws)
         {
-            ws.Range("A1:Q1").Style.Fill.BackgroundColor = XLColor.DarkBlue;
-            ws.Range("A1:Q1").Rows().Style.Font.Bold = true;
-            ws.Range("A1:Q1").Rows().Style.Font.FontColor = XLColor.White;
-            ws.Range("A1:Q1").Rows().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            ws.Range("A1:Q1").Rows().Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Range("A1:U1").Style.Fill.BackgroundColor = XLColor.DarkBlue;
+            ws.Range("A1:U1").Rows().Style.Font.Bold = true;
+            ws.Range("A1:U1").Rows().Style.Font.FontColor = XLColor.White;
+            ws.Range("A1:U1").Rows().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Range("A1:U1").Rows().Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             ws.Rows(1, 1).Height = 30;
             ws.Columns(1,1).Width = 12;
             ws.Columns(2,2).Width = 18;
@@ -156,6 +168,10 @@ namespace PerfilacionDeCalidad.Backend.Logic
             ws.Columns(15,15).Width = 22;
             ws.Columns(16,16).Width = 14;
             ws.Columns(17,17).Width = 12;
+            ws.Columns(18,18).Width = 20;
+            ws.Columns(19,19).Width = 20;
+            ws.Columns(20,20).Width = 20;
+            ws.Columns(21,21).Width = 20;
             ws.Cell("A1").Value = "Finca";
             ws.Cell("B1").Value = "Terminal Destino";
             ws.Cell("C1").Value = "Poma";
@@ -173,6 +189,10 @@ namespace PerfilacionDeCalidad.Backend.Logic
             ws.Cell("O1").Value = "Código de Barras";
             ws.Cell("P1").Value = "Cajas Pallet";
             ws.Cell("Q1").Value = "Perfilar";
+            ws.Cell("R1").Value = "Usuario Chequeo";
+            ws.Cell("S1").Value = "Hora Chequeo";
+            ws.Cell("T1").Value = "Usuario Inspección";
+            ws.Cell("U1").Value = "Hora Inspección";
             return ws;
         }
     }

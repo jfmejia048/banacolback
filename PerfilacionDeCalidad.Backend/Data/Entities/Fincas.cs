@@ -13,7 +13,7 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
 
         public int Codigo { get; set; }
 
-        [MaxLength(10, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
+        [MaxLength(50, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string FincaName { get; set; }
     }
 }

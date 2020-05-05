@@ -11,5 +11,9 @@ namespace Common.DTO
         public string CodigoDeBarras { get; set; }
         public int CajasPalet { get; set; }
         public bool Perfilar { get; set; }
+        public string UsuarioLectura { get; set; }
+        public DateTime HoraLectura { get; set; }
+        public string UsuarioInspeccion { get; set; }
+        public DateTime HoraInspeccion { get; set; }
     }
 }

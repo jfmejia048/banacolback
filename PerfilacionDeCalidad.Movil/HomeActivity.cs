@@ -24,6 +24,7 @@
         EditText txtCodebar;
         private InputMethodManager imm;
         public ApiService apiService;
+        public LoginResponse user;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -31,9 +32,10 @@
             SetContentView(Resource.Layout.home);
             NavigationLoader.init(this);
             this.apiService = new ApiService();
+            this.user = JsonConvert.DeserializeObject<LoginResponse>(Settings.User);
             var toolbar = FindViewById<Toolbar>(Resource.Id.toolbarTabs);
             SetSupportActionBar(toolbar);
-            SupportActionBar.Title = "Perfilación De Calidad";
+            SupportActionBar.Title = "Perfilación De Pallets";
             this.txtCodebar = FindViewById<EditText>(Resource.Id.txtcodeBar);
             txtCodebar.AfterTextChanged += changeCodebar;
             imm = (InputMethodManager)GetSystemService(Context.InputMethodService);
@@ -73,6 +75,7 @@
                 NavigationLoader.ShowLoading();
                 var data = new
                 {
+                    UsuarioLectura = this.user.NombreCompleto,
                     CodigoPalet = codigo
                 };
                 var response = await this.apiService.Post("Palet/GetByCodigo", data, Settings.AccessToken);
@@ -103,7 +106,7 @@
                             }
                             else
                             {
-                                this.PresentAlert("El pallet escaneado no es para calidad.");
+                                this.PresentAlert("El pallet escaneado no es para perfilación.");
                             }
                         }
                         NavigationLoader.HideLoading();

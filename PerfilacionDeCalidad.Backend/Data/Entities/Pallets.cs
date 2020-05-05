@@ -13,6 +13,7 @@ namespace PerfilacionDeCalidad.Backend.Data.Entities
         public DetailTransportGuide DetailTransportGuide { get; set; }
         [MaxLength(50, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string CodigoPalet { get; set; }
+        public string UsuarioLectura { get; set; }
         public DateTime LecturaPalet { get; set; }
         [MaxLength(50, ErrorMessage = "El campo {0} solo permite un maximo de {1} caracteres")]
         public string UsuarioInspeccion { get; set; }

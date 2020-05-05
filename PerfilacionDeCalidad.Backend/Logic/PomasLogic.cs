@@ -23,7 +23,8 @@ namespace PerfilacionDeCalidad.Backend.Logic
         {
             var currentDate = DateTime.UtcNow.ToLocalTime();
             var StartDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 3, 0, 0);
-            var EndDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day + 1, 2, 59, 0);
+            var EndDate = StartDate.AddDays(1);
+            EndDate = new DateTime(EndDate.Year, EndDate.Month, EndDate.Day + 1, 2, 59, 0);
             if (currentDate < StartDate)
             {
                 StartDate = StartDate.AddDays(-1);
@@ -67,7 +68,7 @@ namespace PerfilacionDeCalidad.Backend.Logic
                     PuertoDestino = x.FirstOrDefault().PuertoDestino,
                     Poma = x.FirstOrDefault().Poma,
                     Placa = x.FirstOrDefault().Placa,
-                    FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
+                    FechaCreacion = x.FirstOrDefault().FechaCreacion,
                     Llegada = x.FirstOrDefault().Llegada,
                     Salida = x.FirstOrDefault().Salida,
                     Estimado = x.FirstOrDefault().Estimado,
@@ -131,7 +132,7 @@ namespace PerfilacionDeCalidad.Backend.Logic
                     PuertoDestino = x.FirstOrDefault().PuertoDestino,
                     Poma = x.FirstOrDefault().Poma,
                     Placa = x.FirstOrDefault().Placa,
-                    FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
+                    FechaCreacion = x.FirstOrDefault().FechaCreacion,
                     Llegada = x.FirstOrDefault().Llegada,
                     Salida = x.FirstOrDefault().Salida,
                     Estimado = x.FirstOrDefault().Estimado,
@@ -195,7 +196,11 @@ namespace PerfilacionDeCalidad.Backend.Logic
                              CodigoDeBarras = Pallets.CodigoPalet,
                              idPallet = Pallets.ID,
                              CajasPalet = Pallets.NumeroCajas,
-                             Pallets.Perfilar
+                             Pallets.Perfilar,
+                             Pallets.UsuarioLectura,
+                             LecturaPalet = Pallets.LecturaPalet.ToLocalTime(),
+                             Pallets.UsuarioInspeccion,
+                             InspeccionPalet = Pallets.InspeccionPalet.ToLocalTime()
                          }).OrderBy(x => x.FechaCreacion).ToList();
 
             List<TransportGuidesExcelDTO> List = Pomas.GroupBy(x => new { x.Finca, x.TerminalDestino, x.Poma, x.FechaCreacion })
@@ -205,7 +210,7 @@ namespace PerfilacionDeCalidad.Backend.Logic
                     Finca = x.FirstOrDefault().Finca,
                     TerminalDestino = x.FirstOrDefault().TerminalDestino,
                     Poma = x.FirstOrDefault().Poma,
-                    FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
+                    FechaCreacion = x.FirstOrDefault().FechaCreacion,
                     Llegada = x.FirstOrDefault().Llegada,
                     Salida = x.FirstOrDefault().Salida,
                     Estimado = x.FirstOrDefault().Estimado,
@@ -215,7 +220,7 @@ namespace PerfilacionDeCalidad.Backend.Logic
                     {
                         Fruta = s2.FirstOrDefault().Fruta,
                         Buque = x.FirstOrDefault().Buque,
-                        FechaCreacion = x.FirstOrDefault().FechaCreacion.ToLocalTime(),
+                        FechaCreacion = x.FirstOrDefault().FechaCreacion,
                         Llegada = s2.FirstOrDefault().Llegada,
                         Salida = s2.FirstOrDefault().Salida,
                         Estimado = s2.FirstOrDefault().Estimado,
@@ -229,7 +234,11 @@ namespace PerfilacionDeCalidad.Backend.Logic
                             Carga = s3.Carga,
                             CodigoDeBarras = s3.CodigoDeBarras,
                             CajasPalet = s3.CajasPalet,
-                            Perfilar = s3.Perfilar
+                            Perfilar = s3.Perfilar,
+                            UsuarioLectura = s3.UsuarioLectura,
+                            HoraLectura = s3.LecturaPalet,
+                            UsuarioInspeccion = s3.UsuarioInspeccion,
+                            HoraInspeccion = s3.InspeccionPalet,
                         }).ToList()
                     }).ToList()
                 }).ToList();

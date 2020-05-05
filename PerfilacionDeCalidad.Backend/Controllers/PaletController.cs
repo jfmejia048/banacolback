@@ -79,6 +79,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 var pallet = _dataContext.Palets.Where(x => x.CodigoPalet == Codigo.CodigoPalet).FirstOrDefault();
                 if(pallet != null)
                 {
+                    pallet.UsuarioLectura = Codigo.UsuarioLectura;
                     pallet.LecturaPalet = DateTime.UtcNow;
                     _dataContext.SaveChanges();
                 }

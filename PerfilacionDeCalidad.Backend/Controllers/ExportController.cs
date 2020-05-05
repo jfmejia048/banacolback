@@ -39,7 +39,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                 ExportLogic exportLogic = new ExportLogic(this._dataContext, this._host);
                 var file = exportLogic.ExportExcel(parameters);
 
-                return File(file, "application/vnd.ms-excel", "filename.xlsx");
+                return File(file, "application/vnd.ms-excel", "ExportPallets.xlsx");
             }
             catch (Exception ex)
             {
