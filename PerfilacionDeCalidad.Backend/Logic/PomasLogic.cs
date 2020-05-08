@@ -24,7 +24,7 @@ namespace PerfilacionDeCalidad.Backend.Logic
             var currentDate = DateTime.UtcNow.ToLocalTime();
             var StartDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 3, 0, 0);
             var EndDate = StartDate.AddDays(1);
-            EndDate = new DateTime(EndDate.Year, EndDate.Month, EndDate.Day + 1, 2, 59, 0);
+            EndDate = new DateTime(EndDate.Year, EndDate.Month, EndDate.Day, 2, 59, 0);
             if (currentDate < StartDate)
             {
                 StartDate = StartDate.AddDays(-1);

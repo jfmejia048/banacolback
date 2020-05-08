@@ -7,7 +7,7 @@
     android:gravity="center"
     android:width="220dp">
     <bitmap
-        android:src="@drawable/logoBanacol"
+        android:src="@drawable/blanco"
         android:tileMode="disabled"
         android:gravity="center_horizontal" />
   </item>

@@ -54,13 +54,13 @@ namespace PerfilacionDeCalidad.Backend.Logic
                         ws.Cell("R" + index3.ToString()).Value = x3.UsuarioLectura;
                         ws.Cell("R" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws.Cell("R" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                        ws.Cell("S" + index3.ToString()).Value = x3.HoraLectura.ToString("yyyy-MM-dd HH:mm tt");
+                        ws.Cell("S" + index3.ToString()).Value = string.IsNullOrEmpty(x3.UsuarioLectura) ? "" : x3.HoraLectura.ToString("yyyy-MM-dd HH:mm tt");
                         ws.Cell("S" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws.Cell("S" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                         ws.Cell("T" + index3.ToString()).Value = x3.Perfilar ? x3.UsuarioInspeccion : "N/A";
                         ws.Cell("T" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws.Cell("T" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                        ws.Cell("U" + index3.ToString()).Value = x3.Perfilar ? x3.HoraInspeccion.ToString("yyyy-MM-dd HH:mm tt") : "N/A";
+                        ws.Cell("U" + index3.ToString()).Value = x3.Perfilar ? string.IsNullOrEmpty(x3.UsuarioInspeccion) ? "" : x3.HoraInspeccion.ToString("yyyy-MM-dd HH:mm tt") : "N/A";
                         ws.Cell("U" + index3.ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws.Cell("U" + index3.ToString()).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                         index3++;

@@ -67,10 +67,10 @@ namespace PerfilacionDeCalidad.Backend.Controllers
         [Route("Create")]
         public async Task<IActionResult> CreatePoma([FromBody]List<CreatePomas> Pomas)
         {
-            List<Vehiculos> ListPoma = new List<Vehiculos>();
+            string result = "";
             try {
-                ListPoma = await CreateMasivo(Pomas);
-                return Ok(new { Data = ListPoma, Success = true });
+                result = await CreateMasivo(Pomas);
+                return Ok(new { Data = result, Success = true });
             }
             catch (Exception ex)
             {
@@ -92,7 +92,7 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             return Vehiculo;
         }
 
-        public async Task<List<Vehiculos>> CreateMasivo(List<CreatePomas> Pomas)
+        public async Task<string> CreateMasivo(List<CreatePomas> Pomas)
         {
             ExportadorController exportadorController = new ExportadorController(_dataContext);
             PuertoController puertoController = new PuertoController(_dataContext);
@@ -158,8 +158,33 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                     TransportGuide.Destino = Destino;
                     TransportGuide.Exportador = Exportador;
 
-                    _dataContext.TransportGuides.Add(TransportGuide);
-                    await _dataContext.SaveChangesAsync();
+                    bool EditTG = false;
+                    TransportGuide valTG = this.ExistTransportGuide(Poma.Numero);
+                    if(valTG == null)
+                    {
+                        _dataContext.TransportGuides.Add(TransportGuide);
+                        await _dataContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var currentDate = DateTime.UtcNow.ToLocalTime();
+                        var StartDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 3, 0, 0);
+                        var EndDate = StartDate.AddDays(1);
+                        EndDate = new DateTime(EndDate.Year, EndDate.Month, EndDate.Day, 2, 59, 0);
+                        if (currentDate < StartDate)
+                        {
+                            StartDate = StartDate.AddDays(-1);
+                            EndDate = EndDate.AddDays(-1);
+                        }
+                        if((valTG.FechaRegistro >= StartDate && valTG.FechaRegistro <= EndDate) && valTG.Estado == 0)
+                        {
+                            EditTG = true;
+                        }
+                        else
+                        {
+                            return "La poma ya existe";
+                        }
+                    }
 
                     foreach (var detail in Poma.DetailPoma)
                     {
@@ -169,11 +194,25 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                         FR.FrutaName = detail.Frutas.FrutaName;
                         Fruta = await frutasController.Create(FR);
 
+                        DetailTransportGuide valDTG = null;
                         DetailTransportGuide DetailTG = new DetailTransportGuide();
-                        DetailTG.TransportGuide = TransportGuide;
                         DetailTG.Fruta = Fruta;
-                        _dataContext.DetailTransportGuide.Add(DetailTG);
-                        await _dataContext.SaveChangesAsync();
+                        if (EditTG)
+                        {
+                            valDTG = this.ExistDetailTransportGuide(valTG.ID, Fruta.ID);
+                            if(valDTG == null)
+                            {
+                                DetailTG.TransportGuide = valTG;
+                                _dataContext.DetailTransportGuide.Add(DetailTG);
+                                await _dataContext.SaveChangesAsync();
+                            }
+                        }
+                        else
+                        {
+                            DetailTG.TransportGuide = TransportGuide;
+                            _dataContext.DetailTransportGuide.Add(DetailTG);
+                            await _dataContext.SaveChangesAsync();
+                        }
 
                         foreach (var palet in detail.Palets)
                         {
@@ -188,7 +227,21 @@ namespace PerfilacionDeCalidad.Backend.Controllers
                             Palet.Carga = palet.Carga;
                             Palet.Tipo = palet.Tipo;
                             Palet.Perfilar = false;
-                            Palet.DetailTransportGuide = DetailTG;
+                            if (EditTG)
+                            {
+                                if(valDTG == null)
+                                {
+                                    Palet.DetailTransportGuide = DetailTG;
+                                }
+                                else
+                                {
+                                    Palet.DetailTransportGuide = valDTG;
+                                }
+                            }
+                            else
+                            {
+                                Palet.DetailTransportGuide = DetailTG;
+                            }
                             _dataContext.Palets.Add(Palet);
                         }
                     }
@@ -206,14 +259,26 @@ namespace PerfilacionDeCalidad.Backend.Controllers
             }
             catch (Exception ex)
             {
-                return ListPoma;
+                return ex.Message;
             }
-            return ListPoma;
+            return "Ejecutado correctamente";
         }
 
         public bool ExistPoma(string placa)
         {
             return _dataContext.Pomas.Any(x => x.Placa.ToLower() == placa.ToLower());
+        }
+
+        public TransportGuide ExistTransportGuide(int numero)
+        {
+            var TG =  _dataContext.TransportGuides.Where(x => x.Numero == numero).FirstOrDefault();
+            return TG;
+        }
+
+        public DetailTransportGuide ExistDetailTransportGuide(int TG, int F)
+        {
+            var DTG = _dataContext.DetailTransportGuide.Where(x => x.TransportGuide.ID == TG && x.Fruta.ID == F).FirstOrDefault();
+            return DTG;
         }
 
         [HttpPost]
